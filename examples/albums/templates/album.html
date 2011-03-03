@@ -1,0 +1,21 @@
+<div data-role="page" id="albumview" data-position="inline" data-url="_show/album/{{document}}">
+  <div data-role="header" id="albumheader">
+    <h1 class="albumtitle">{{title}}</h1>
+    <a href="#home" data-icon="arrow-l">Back</a>
+  </div>
+  <div data-role="content" id="albumcontent" data-identity="{{document}}">
+    <h2 class="artist">{{artist}}</h2>
+    <p class="title">{{title}}</p>
+    <p class="description">{{description}}</p>
+  </div>
+  <div id="falseFooter" class="ui-bar-a ui-footer ui-footer-fixed ui-fixed-inline fade" role="content" data-position="fixed">
+    <div data-role="navbar">
+      <ul class="ui-grid-a">
+        <li><a href="#" id="deleteButton" data-icon="minus">Delete</a></li>
+        <li><a href="#" id="editButton" data-icon="gear" data-theme="b">Edit</a></li>
+      </ul>
+    </div>
+  </div>
+  <div data-role="footer" data-position="fixed" />
+</div>
+{{>scripts}}

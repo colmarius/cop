@@ -1,0 +1,34 @@
+<div data-role="page" id="albumedit" data-nobackbtn="true">
+  <div data-role="header" id="albumheader">
+    <a id="cancelBackButton" href="#" data-icon="delete">Close</a>
+    <h1 class="albumtitle">{{title}}</h1>
+  </div>
+  <div data-role="content" data-theme="c" style="padding:0em;">
+    <form id="albumform" action="#" method="get" data-identity="{{document}}">
+      <div data-role="fieldcontain">
+        <label for="artist">Artist:</label>
+        <input id="artistField" name="artist" type="text" value="{{artist}}" />
+      </div>
+      <div data-role="fieldcontain">
+        <label for="title">Title:</label>
+        <input id="titleField" name="title" type="text" value="{{title}}" />
+      </div>
+      <div data-role="fieldcontain">
+        <label for="description">Description:</label>
+        <textarea id="descriptionField" name="description" cols="40" rows="8">{{description}}</textarea>
+      </div>
+      <div class="ui-body ui-body-b">
+        <fieldset class="ui-grid-a">
+          <div class="ui-block-a">
+            <p id="cancelButton" data-role="button" data-theme="d">Cancel</p>
+          </div>
+          <div class="ui-block-b">
+            <p id="submitButton" data-role="button" data-theme="a">Submit</p>
+          </div>
+        </fieldset>
+      </div>
+    </form>
+  </div>
+  <div data-role="footer" />
+</div>
+{{>scripts}}

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+for i in `ls scenario*.js`
+do
+	./../vendor/v8-shell $i;
+done

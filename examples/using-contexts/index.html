@@ -1,0 +1,39 @@
+<html>
+  <head>
+    <title>Example: using contexts</title>
+  </head>
+  
+  <body>
+  </body>
+  
+  <!-- Load jquery for DOM manipulation. -->
+  <script src="../../test/vendor/jquery-1.4.4.min.js"></script>
+  
+  <!-- Load cop library. -->
+  <script src="../../cop.js"></script>
+  
+  <!-- Load application. -->
+  <script src="application/application.js"></script>
+  
+  <!-- Load contexts. -->
+  <script src="context/android.js"></script>
+  <script src="context/defensive-programming.js"></script>
+  <script src="context/profiler.js"></script>
+  
+  <!-- Load combined contexts. -->
+  <script src="combined-context/profiler-defprog.js"></script>
+  
+  <!-- This is our main. -->
+  <script ype="text/javascript" charset="utf-8">
+  
+    $(document).ready( function( ) {
+      
+      //Profiler.activate();
+      //DefensiveProgramming.activate();
+      Android.activate(); 
+      
+      App.init( );
+    });
+    
+  </script>
+</html>

@@ -1,0 +1,13 @@
+<div data-role="page" id="albumdelete" data-backbtn="false" class="ui-dialog ui-body-a">
+  <div class="ui-header ui-bar-a ui-corner-top ui-overlay-shadow">
+    <h1 class="ui-title">Delete Album?</h1>
+    <a id="dialogCloseButton" href="#" data-icon="delete" data-iconpos="notext" style="left: 15px; top: .4em; position: absolute;">Close</a>
+  </div>
+  <div data-role="content" id="dialogContent" data-identity="{{document}}" class="ui-body-c ui-corner-bottom ui-overlay-shadow">
+    <p>Are you sure you want to delete {{artist}}, {{title}}?</p>
+    <a id="dialogCancelButton" href="#" data-role="button" data-theme="a">no</a>
+    <a id="dialogConfirmButton" href="#" data-role="button" data-theme="c">yes</a>
+  </div>
+  <div data-role="footer" />
+</div>
+{{>scripts}}

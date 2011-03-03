@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Quickstart with cop-library in Javascript</title>
+    <link rel="stylesheet" href="style/jquery.mobile-1.0a3.css" type="text/css">
+    
+    <script src="script/jquery-1.5.js"></script>
+    <script src="script/jquery.mobile-1.0a3.js"></script>
+    
+    <!-- load our cop-library -->
+    <script type="text/javascript" charset="utf-8" src="script/cop.js"></script>
+    
+    <!-- load our hello-cop -->
+    <script type="text/javascript" charset="utf-8" src="script/hello-cop.js"></script>
+    
+  </head>
+  <body>
+    <!-- 
+      This is taken from the jquerymobile code examples:
+      http://jquerymobile.com/demos/1.0a3/docs/pages/multipage-template.html 
+    -->
+  
+    <!-- Start of first page --> 
+    <div data-role="page" id="foo"> 
+     
+      <div data-role="header"> 
+      	<h1>Foo</h1> 
+    	</div><!-- /header --> 
+     
+    	<div data-role="content">	
+    		<h2>Foo</h2> 
+    		<p>I'm first in the source order so I'm shown as the page.</p>		
+    		<p>View internal page called <a href="#bar">bar</a></p>	
+    		<p>View internal page called <a href="#baz" data-rel="dialog" data-transition="pop">baz</a> as a dialog.</p>
+      	
+        <!-- PART: Relative to our cop example -->
+        <p>
+          <i> We will adapt <a href="http://www.jquerymobile.com" data-rel="external">jQueryMobile</a> library under a context LowBattery.
+          Chose to <a id="contextActivate" href="#">Activate</a> or <a id="contextDeactivate" href="#">Deactivate</a> the LowBattery context 
+          (this example is taken from <a href="http://jquerymobile.com/demos/1.0a3/docs/pages/multipage-template.html ">here</a>).
+          </i>
+        </p>
+        <div id="contextState"></div>
+        
+        <!-- END PART: Relative to our cop example -->
+        
+    	</div><!-- /content --> 
+    	
+    	<div data-role="footer"> 
+    		<h4>Page Footer</h4> 
+    	</div><!-- /footer --> 
+    </div><!-- /page --> 
+     
+     
+    <!-- Start of second page --> 
+    <div data-role="page" id="bar"> 
+     
+    	<div data-role="header"> 
+    		<h1>Bar</h1> 
+    	</div><!-- /header --> 
+     
+    	<div data-role="content">	
+    		<h2>Bar</h2> 
+    		<p>I'm the bar page.</p>		
+    		<p><a href="#foo" data-direction="reverse">Back to foo</a></p>	
+    	</div><!-- /content --> 
+    	
+    	<div data-role="footer"> 
+    		<h4>Page Footer</h4> 
+    	</div><!-- /footer --> 
+    </div><!-- /page --> 
+     
+     
+    <!-- Start of second page --> 
+    <div data-role="page" id="baz"> 
+     
+    	<div data-role="header"> 
+    		<h1>Baz</h1> 
+    	</div><!-- /header --> 
+     
+    	<div data-role="content">	
+    		<h2>Baz</h2> 
+    		<p>I'm the baz page, viewed as a dialog.</p>		
+    		<p><a href="#foo" data-rel="back">Back to foo</a></p>	
+    	</div><!-- /content --> 
+    	
+    	<div data-role="footer"> 
+    		<h4>Page Footer</h4> 
+    	</div><!-- /footer --> 
+    </div><!-- /page --> 
+  </body>
+  <
+</html>
