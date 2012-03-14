@@ -1,1 +1,0 @@
-<script src="../../script/album-delete-dialog.js"></script>
