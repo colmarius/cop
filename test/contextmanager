@@ -1,0 +1,50 @@
+ContextManager
+==============
+
+The context manager is the coordinator of context objects. An instance is created by specifying explicitly what are the contexts of interest, and also what are the relations between them.
+
+It should:
+ * have a dictionary of contexts (context_name => context_object), and
+   also contexts should have unique names
+ * have a dictionary of relations (context_name => relations_object), and
+   also relations should be defined only between known context names
+ * have a set of active contexts
+ * have a set of contexts to activate
+ * have a set of context to deactivate
+ * be able to get a context object by name
+ * be able to get a context relations object by context name
+ * be able to know if a context is active or not
+	 should I explicitly say context.activate() or context.deactivate(), or
+	 should I trigger context presence when detected
+ * be able to trigger a context activation event
+ * be able to handle objects with adaptations dynamic runtime composition
+   when triggered a context activation event
+ * be able to resolve a conflict for one two or more context for an object
+   and provide instead a resolved no-conflict adaptation
+
+Attributes
+----------
+
+	`contexts`
+
+	`relations`
+
+	`activeContexts`
+
+	`toActivate`
+
+	`toDeactivate`
+
+Methods
+-------
+
+	`getContext(name)`
+
+	`getRelation(context)`
+
+	`isActive(context)`
+
+	`trigger(contextActivationEvent)`
+
+	`resolveConflict(...)`
+

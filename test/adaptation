@@ -1,0 +1,13 @@
+Adaptation
+----------
+
+Is a record of the form: 
+  {object: someObject, trait: someTrait}.
+
+
+Adaptations
+-----------
+
+Is a record of the form:
+ {object: someObject, traits: [trait1, trait2,...]}
+
