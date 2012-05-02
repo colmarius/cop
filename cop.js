@@ -39,33 +39,63 @@
   if (!Trait && (typeof require !== 'undefined'))
     Trait = require('traits').Trait;
   
+  // Debug log messages to console.
+  var log = console.log;
+
   // Cop.Context
   // -----------
   
-  Cop.Context = function(name) {
-    if (!name || name === "")
-      throw new Error("Context object must have a name.");
-    
-    this.name = name;
-    this._objects = [];
-    this._traits = [];
+  Cop.Context = function(options) {
+    this._configure(options || {});
+    //this.initialize.apply(this, arguments);
   };
 
   _.extend(Cop.Context.prototype, Backbone.Events, {
 
+    initialize: function() {},
+
+    activate: function() {
+      if (!this.active) {
+        this.active = true;
+        this.trigger("activate");
+      }
+    },
+
+    deactivate: function() {
+      if (this.active) {
+        this.active = false;
+        this.trigger("deactivate");
+      }
+    },
+
     setAdaptation: function(object, trait) {
+      if (!_.isObject(object))
+        throw new Error("Only objects can be adapted.");
+
       if (object === root)
         throw new Error("Cannot adapt the global object.");
-
-      this._objects.push(object);
-      this._traits.push(trait);
+      
+      this.adaptations.push({object: object, trait: trait});
     },
 
     getAdaptation: function(object) {
-      for (var i = 0, l = this._objects.length; i < l; i++) {
-        if (this._objects[i] === object)
-          return {object: this._objects[i], trait: this._traits[i]};
-      }
+      return _.find(this.adaptations, function(adaptation) {
+        return adaptation.object === object;
+      });
+    },
+
+    _configure: function(options) {
+      var options = options || {};
+      
+      if (!options.name || options.name === "")
+        throw new Error("Context object must have a name.");
+        
+      this.name = options.name;
+      this.active = false;
+      this.adaptations = [];
+
+      if (_.isFunction(options.initialize))
+        this.initialize = options.initialize;
     }
 
   });
@@ -130,7 +160,7 @@
           if (contexts.contains(name))
             throw new Error("Context manager has context: " + name + ".");
           else
-            contexts.store(name, new Cop.Context(name));
+            contexts.store(name, new Cop.Context({name: name}));
         });
       }
       
