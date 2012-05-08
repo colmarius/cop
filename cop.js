@@ -38,9 +38,6 @@
   var Trait = root.Trait;
   if (!Trait && (typeof require !== 'undefined'))
     Trait = require('traits').Trait;
-  
-  // Debug log messages to console.
-  var log = console.log;
 
   // Cop.Context
   // -----------
@@ -58,14 +55,14 @@
 
     activate: function() {
       if (!this.active) {
-        this.active = true;
+        this.active = true; // should CM set this?
         this.trigger("activate", this);
       }
     },
 
     deactivate: function() {
       if (this.active) {
-        this.active = false;
+        this.active = false; // should CM set this?
         this.trigger("deactivate", this);
       }
     },
@@ -100,6 +97,18 @@
 
   });
 
+  // Cop.Composer
+  // ------------
+
+  Cop.Composer = function() {
+
+  };
+
+  _.extend(Cop.Composer.prototype, {
+
+
+  });
+
   // Cop.ContextManager
   // ------------------
   
@@ -108,16 +117,51 @@
     this.initialize.apply(this, arguments);
   };
 
+  var history = Cop.ContextManager.history = []; 
+
   _.extend(Cop.ContextManager.prototype, Backbone.Events, {
 
     initialize: function() {},
 
     onActivate: function(context) {
-      console.log(context.name, " is now active.");
+      history.push("Context " + context.name + " triggered activate.");
+      if (!this.contextsActive[context.name]) {
+        if (this.started) {
+          this.recompose([context]);
+        } 
+        else {
+          this.contextsToActivate.push(context);
+          history.push("Context manager not started yet. " + 
+            "Context " + context.name + " not activated.");
+        }
+      }
     },
 
     onDeactivate: function(context) {
-      console.log(context.name, " is now inactive.");
+      history.push("Context " + context.name + " triggered deactivate.");
+    },
+
+    recompose: function(contexts) {
+      var contextsActive = this.contextsActive;
+
+      history.push("Recomposing " + _.pluck(contexts, "name").join(",") + ".");
+      _.each(contexts, function(context) {
+        contextsActive[context.name] = true;
+        history.push("Context " + context.name + " is now active.");
+      });
+    },
+
+    start: function() {
+      history.push("Context manager preparing start up.");
+      this.contexts.each(function(context) {
+        history.push("Initializing context " + context.name + ".");
+        context.initialize();
+        history.push("Context " + context.name + " is now initialized.");
+      });
+      this.started = true;
+      if (this.contextsToActivate.length > 0)
+        this.recompose(this.contextsToActivate);
+      history.push("Context manager started.")
     },
 
     _configure: function(options) {
@@ -161,15 +205,18 @@
       this.contexts = contexts;
       this.relations = relations;
       this.contextsActive = {};
-      this.contextsToActivate = {};
-      this.contextsToDeactivate = {};
+      this.contextsToActivate = [];
+      this.contextsToDeactivate = [];
     }
 
   });
 
-
   // Helpers
   // -------
+
+  root.showHistory = function() {
+    console.log(history.join("\n"));
+  };
 
   function Dictionary(startValues) {
     this.values = _.clone(startValues) || {};
