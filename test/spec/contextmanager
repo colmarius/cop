@@ -14,9 +14,7 @@ It should:
  * be able to get a context object by name
  * be able to get a context relations object by context name
  * be able to know if a context is active or not
-	 should I explicitly say context.activate() or context.deactivate(), or
-	 should I trigger context presence when detected
- * be able to trigger a context activation event
+ * be notified upon context `activate` and `deactivate` triggered events after each context.activate() or context.deactivate()
  * be able to handle objects with adaptations dynamic runtime composition
    when triggered a context activation event
  * be able to resolve a conflict for one two or more context for an object
@@ -29,22 +27,18 @@ Attributes
 
 	`relations`
 
-	`activeContexts`
+	`contextsActive`
 
-	`toActivate`
+	`contextsToActivate`
 
-	`toDeactivate`
+	`contextsToDeactivate`
 
 Methods
 -------
 
-	`getContext(name)`
+	`onActivate(context)`
 
-	`getRelation(context)`
-
-	`isActive(context)`
-
-	`trigger(contextActivationEvent)`
+	`onDeactivate(context)`
 
 	`resolveConflict(...)`
 
