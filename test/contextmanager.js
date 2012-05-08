@@ -1,94 +1,87 @@
 $(document).ready(function() {
 
-  module("Cop.ContextManager");
-
-  test("ContextManager: creation", function() {
-		var contextManager;
-	 
-		contextManager = new Cop.ContextManager({
-			contexts: ['a', 'b', 'c'],
-			relations: {}
-		});
-
-		ok(contextManager.contexts, "should have contexts");
-		ok(contextManager.relations, "should have relations");
-		ok(contextManager.currentActive, "should have current active contexts");
-		ok(contextManager.toActivate, "should have contexts to activate");
-		ok(contextManager.toDeactivate, "should have contexts to deactivate");
-
-		try {
-			contextManager = new Cop.ContextManager({
-				contexts: ['a','b','b'],
-				relations: {}
-			});
-			ok(false, "should throw error trying to pass contexts with same name");
-		} catch(err) {
-			equal(err.message, "Context manager has context: b.");
-		}
-
-		try {
-			contextManager = new Cop.ContextManager({
-				contexts: ['a','b','c'],
-				relations: {'a': {include: 'b', exclude: 'd'}}
-			});
-			ok(false, "should throw error trying store relation regarding 'd'");
-		} catch(err) {
-			equal(err.message, "Unregistered context 'd'.");
-		}
-
+  module("Cop.ContextManager", {
+    setup: function() {
+      this.a = new Cop.Context({name: 'a'});
+      this.b = new Cop.Context({name: 'b'});
+      this.c = new Cop.Context({name: 'c'});
+    },
+    teardown: function() {
+      delete this.a;
+      delete this.b;
+      delete this.c;
+    }
   });
 
-  test("ContextManager: getContext", function() {
-		var contextManager = new Cop.ContextManager({
-			contexts:	['a','b','c'],
-			relations: {}
-		});
-		
-		ok(contextManager.getContext('a'), "should have context");
-		ok(contextManager.getContext('b'), "should have context");
-		ok(contextManager.getContext('c'), "should have context");
-		equal(contextManager.getContext('d'), undefined, "should not have context");
+  test("ContextManager: creation with contexts", function() {
+    var cm = new Cop.ContextManager({
+      contexts: [this.a, this.b, this.c],
+      relations: []
+    });
+
+		ok(cm.contexts, "should have contexts");
+    ok(cm.contexts.contains(this.a.name), "should have registered context a");
+    ok(cm.contexts.contains(this.b.name), "should have registered context b");
+    ok(cm.contexts.contains(this.c.name), "should have registered context c");
+		ok(cm.relations, "should have relations");
+		ok(cm.contextsActive, "should have active contexts");
+		ok(cm.contextsToActivate, "should have contexts to activate");
+		ok(cm.contextsToDeactivate, "should have contexts to deactivate");
+
+    try {
+      cm = new Cop.ContextManager({
+      });      
+      ok(false, "should throw error creating context manager without 'contexts' paramter");
+    } catch(err) {
+      equal(err.message, "Cannot create context manager without contexts.");
+    }
+
+    try {
+      cm = new Cop.ContextManager({
+        contexts: undefined,
+      });      
+      ok(false, "should throw error creating context manager with 'contexts' parameter undefined");
+    } catch(err) {
+      equal(err.message, "Cannot create context manager without contexts.");
+    }
+
+    try {
+      cm = new Cop.ContextManager({
+        contexts: {},
+      });      
+      ok(false, "should throw error creating context manager without an array 'contexts' ");
+    } catch(err) {
+      equal(err.message, "Cannot create context manager without contexts.");
+    }
+
+    try {
+      cm = new Cop.ContextManager({
+        contexts: [this.a, this.b, this.b],
+      });      
+      ok(false, "should throw error passing two identical contexts");
+    } catch(err) {
+      equal(err.message, "Already registered context: b.");
+    }
 
   });
-
-  test("ContextManager: getRelation", function() {
-		var contextManager = new Cop.ContextManager({
-			contexts:	['a','b','c'],
-			relations: {'a': {include: 'b', exclude: ['c']},
-									'c': {include: ['a'], exclude: 'b'}}
-		});
-		
-		var aRelation = contextManager.getRelation('a');
-		var cRelation = contextManager.getRelation('c');
-		
-		equal(aRelation.context, 'a');
-		equal(aRelation.include[0], 'b');
-		equal(aRelation.exclude[0], 'c');
-		equal(cRelation.include[0], 'a');
-		equal(cRelation.exclude[0], 'b');
-
+  
+  test("ContextManager: TODO creation with relations", function() {
+    var cm = new Cop.ContextManager({
+      contexts: [this.a, this.b, this.c],
+      relations: [
+        { 
+          context: this.a,
+          include: [this.b], 
+          exclude: [this.c]
+        }
+      ]
+    });
+    
+    var aRelation = cm.relations.lookup(this.a.name);
+    
+    equal(aRelation.context.name, this.a.name);
+    equal(aRelation.include[0].name, this.b.name);
+    equal(aRelation.exclude[0].name, this.c.name);
   });
-
-  test("ContextManager: ...", function() {
-		var contextManager = new Cop.ContextManager({
-			contexts:	 ["battery:low",
-								 	"battery:normal",
-								 	"network:offline",	
-								 	"network:online",	
-								 	"network:3g",	
-								 	"network:wifi"],
-
-			relations: {"battery:low": {excludes: ["battery:normal"],
-																	includes: ["network:offline"]},
-
-									"battery:normal" : {excludes: ["battery:low"]},
-
-									"network:online" : {excludes: ["network:offline"]},
-
-									"network:offline" : {excludes: ["network:online",
-																									"network:3g",
-																									"network:wifi"]}}
-		});
-  });
-
+    
 });

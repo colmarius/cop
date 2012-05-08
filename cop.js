@@ -54,17 +54,19 @@
 
     initialize: function() {},
 
+    // destroy: function() {},
+
     activate: function() {
       if (!this.active) {
         this.active = true;
-        this.trigger("activate");
+        this.trigger("activate", this);
       }
     },
 
     deactivate: function() {
       if (this.active) {
         this.active = false;
-        this.trigger("deactivate");
+        this.trigger("deactivate", this);
       }
     },
 
@@ -84,9 +86,7 @@
       });
     },
 
-    _configure: function(options) {
-      var options = options || {};
-      
+    _configure: function(options) {      
       if (!options.name || options.name === "")
         throw new Error("Context object must have a name.");
         
@@ -112,74 +112,57 @@
 
     initialize: function() {},
 
-    getContext: function(name) {
-      return this.contexts.lookup(name);
+    onActivate: function(context) {
+      console.log(context.name, " is now active.");
     },
 
-    getRelation: function(context) {
-      var relation = this.relations.lookup(context);
-      if (relation)
-        return {context: context, 
-                include: relation.include,
-                exclude: relation.exclude};
+    onDeactivate: function(context) {
+      console.log(context.name, " is now inactive.");
     },
 
     _configure: function(options) {
+      var self = this;
       var contexts = new Dictionary();
       var relations = new Dictionary();
-
-      function checkContext(name) {
-        if (name == undefined)
-          throw new Error("Context undefined.");
-        else if (!contexts.contains(name))
-          throw new Error("Unregistered context '" + name + "'.");
-      }
-
-      function parse(relation, type) {
-        var relationArray = relation[type];
-        
-        if (relationArray == undefined)
-          return;
-        else if (!_.isArray(relationArray) && !_.isString(relationArray))
-          delete relation[type];
-        else if (_.isString(relationArray))
-          relationArray = [relationArray];
-
-        _.each(relationArray, function(name) {
-          checkContext(name);
-        });
-        
-				return relationArray;
-      }
-
-      if (this.options) 
-        options = _.extend({}, this.options, options);
-
-      if (options.contexts) {
-        _.each(options.contexts, function(name) {
-          if (contexts.contains(name))
-            throw new Error("Context manager has context: " + name + ".");
-          else
-            contexts.store(name, new Cop.Context({name: name}));
-        });
-      }
       
-      if (options.relations) {
-        _.each(options.relations, function(relation, contextName) {
-          checkContext(contextName);
-          relation.include = parse(relation, 'include');
-          relation.exclude = parse(relation, 'exclude');
-          // If checks passed Ok store context relation.
-          relations.store(contextName, relation);
+      if (!_.isArray(options.contexts)) {
+        throw new Error("Cannot create context manager without contexts.");
+      }
+
+      _.each(options.contexts, function(context) {
+        if (contexts.contains(context.name))
+          throw new Error("Already registered context: " + context.name + ".");
+        else {
+          contexts.store(context.name, context);
+          context.on("activate", self.onActivate, self);
+          context.on("deactivate", self.onDeactivate, self);
+        }
+      });
+
+      if (_.isArray(options.relations)) {
+        _.each(options.relations, function(relation) {
+          var contextName = relation.context.name;
+
+          if (!contextName)
+            throw new Error("Unknown relation: " + relation + ".");
+
+          if (!contexts.contains(contextName))
+            throw new Error("Unregistered context '" + contextName + "." );
+
+          if (relations.contains(contextName))
+            throw new Error("Relation exists for context: " + contextName + ".");
+          else
+            // todo: checks on relation object
+            relations.store(contextName, relation); 
         });
       }
 
       this.options = options;
       this.contexts = contexts;
       this.relations = relations;
-      this.currentActive = {};
-      this.toActivate = {};
-      this.toDeactivate = {};
+      this.contextsActive = {};
+      this.contextsToActivate = {};
+      this.contextsToDeactivate = {};
     }
 
   });
