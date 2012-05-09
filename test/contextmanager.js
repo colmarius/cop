@@ -69,19 +69,10 @@ $(document).ready(function() {
     var cm = new Cop.ContextManager({
       contexts: [this.a, this.b, this.c],
       relations: [
-        { 
-          context: this.a,
-          include: [this.b], 
-          exclude: [this.c]
-        }
+       // TODO
       ]
     });
     
-    var aRelation = cm.relations.lookup(this.a.name);
-    
-    equal(aRelation.context.name, this.a.name);
-    equal(aRelation.include[0].name, this.b.name);
-    equal(aRelation.exclude[0].name, this.c.name);
   });
     
 });
