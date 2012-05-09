@@ -44,25 +44,24 @@
   
   Cop.Context = function(options) {
     this._configure(options || {});
-    //this.initialize.apply(this, arguments);
   };
 
   _.extend(Cop.Context.prototype, Backbone.Events, {
 
     initialize: function() {},
 
-    // destroy: function() {},
+    destroy: function() {},
 
     activate: function() {
       if (!this.active) {
-        this.active = true; // should CM set this?
+        this.active = true;
         this.trigger("activate", this);
       }
     },
 
     deactivate: function() {
       if (this.active) {
-        this.active = false; // should CM set this?
+        this.active = false;
         this.trigger("deactivate", this);
       }
     },
@@ -93,19 +92,39 @@
 
       if (_.isFunction(options.initialize))
         this.initialize = options.initialize;
+
+      if (_.isFunction(options.destroy))
+        this.destroy = options.destroy;
     }
 
   });
 
   // Cop.Composer
   // ------------
+  //
+  // Handles object structure modifications and knows how to compose traits.
 
   Cop.Composer = function() {
 
   };
 
   _.extend(Cop.Composer.prototype, {
+    
+    // Return a shallow copy of object's own porperties.
+    clone: function(object) {
 
+    },
+
+    // Return a new object that has the trait.
+    acquire: function(object, trait) {
+
+    },
+
+    // No return value: 
+    // object will have same properties as fromObject. 
+    restore: function(object, fromObject) {
+
+    }
 
   });
 
@@ -123,45 +142,89 @@
 
     initialize: function() {},
 
-    onActivate: function(context) {
-      history.push("Context " + context.name + " triggered activate.");
-      if (!this.contextsActive[context.name]) {
-        if (this.started) {
-          this.recompose([context]);
-        } 
-        else {
-          this.contextsToActivate.push(context);
-          history.push("Context manager not started yet. " + 
-            "Context " + context.name + " not activated.");
-        }
+    start: function() {
+      log("Context manager is preparing to start up.");
+      this.contexts.each(function(context) {
+        log("Initializing context " + context.name + ".");
+        context.initialize();
+        log("Context " + context.name + " is now initialized.");
+      });
+      this.running = true;
+      log("Context manager is running.");
+      if (this.contextsToActivate.length > 0)
+        this.trigger("recompose");
+      log("Context manager has started up.");
+    },
+
+    contextChanged: function(context) {
+      log("Context " + context.name + " triggered " + 
+        (context.active ? "activate" : "deactivate"));
+
+      if (context.active) {
+        this.contextsToActivate.push(context);
+        log("Context " + context.name + " marked for activation.");
+      } 
+      else {
+        this.contextsToDeactivate.push(context);
+        log("Context " + context.name + " marked for deactivation.");
+      }
+
+      if (this.running) {
+        this.trigger("recompose");
+      }
+      else {
+        log("Context manager not running yet. " + 
+          "Context " + context.name + " not activated.");
       }
     },
 
-    onDeactivate: function(context) {
-      history.push("Context " + context.name + " triggered deactivate.");
+    recompose: function() {
+      if (!this.recomposing) {
+        log("Recomposition Started:");
+        this.recomposing = true;
+
+        var contexts = {
+          active: this.contextsActive,
+          toActivate: this.contextsToActivate,
+          toDeactivate: this.contextsToDeactivate
+        }
+
+        // TODO: recomposition logic
+        console.log("Contexts: ", contexts);
+
+        contexts = this.resolveDependencies(contexts);
+
+        var objects = this.objectsToRecompose(contexts);
+
+        // ...
+
+        this.recomposing = false;
+        log("Recomposition Ended!");
+      }
+      else {
+        log("ALREADY RECOMPOSING CONTEXTS.");
+      }
     },
 
-    recompose: function(contexts) {
-      var contextsActive = this.contextsActive;
-
-      history.push("Recomposing " + _.pluck(contexts, "name").join(",") + ".");
-      _.each(contexts, function(context) {
-        contextsActive[context.name] = true;
-        history.push("Context " + context.name + " is now active.");
-      });
+    resolveDependencies: function(contexts) {
+      // 1. Look how relations impact on contexts to (de) activate.
+      // 2. contexts.toActivate = contexts.toActivate - contexts.active 
+      //      - contexts.toDeactivate
+      // 3. contexts.toDeactivate = contexts.toDeactivate
+      return contexts;
     },
 
-    start: function() {
-      history.push("Context manager preparing start up.");
-      this.contexts.each(function(context) {
-        history.push("Initializing context " + context.name + ".");
-        context.initialize();
-        history.push("Context " + context.name + " is now initialized.");
-      });
-      this.started = true;
-      if (this.contextsToActivate.length > 0)
-        this.recompose(this.contextsToActivate);
-      history.push("Context manager started.")
+    objectsToRecompose: function(contexts) {
+      // 1. Look into contexts.toActivate and contexts.toDeactivate
+      // and return records of those objects.
+
+      // 2. Create records for objects like this:
+      /*
+      recordObject = {
+        object: reference,
+        traits: [],
+        contexts: []
+      }*/    
     },
 
     _configure: function(options) {
@@ -169,22 +232,23 @@
       var contexts = new Dictionary();
       var relations = new Dictionary();
       
-      if (!_.isArray(options.contexts)) {
+      // Initialize contexts.
+      if (!_.isArray(options.contexts))
         throw new Error("Cannot create context manager without contexts.");
-      }
 
       _.each(options.contexts, function(context) {
-        if (contexts.contains(context.name))
+        if (contexts.contains(context.name)) 
           throw new Error("Already registered context: " + context.name + ".");
         else {
           contexts.store(context.name, context);
-          context.on("activate", self.onActivate, self);
-          context.on("deactivate", self.onDeactivate, self);
+          context.on("activate", self.contextChanged, self);
+          context.on("deactivate", self.contextChanged, self);
         }
       });
 
-      if (_.isArray(options.relations)) {
-        _.each(options.relations, function(relation) {
+      // Initialize relations.
+      if (_.isArray(options.relations) && options.relations.length > 0) {
+        /*_.each(options.relations, function(relation) {
           var contextName = relation.context.name;
 
           if (!contextName)
@@ -198,13 +262,15 @@
           else
             // todo: checks on relation object
             relations.store(contextName, relation); 
-        });
+        });*/
       }
+
+      this.on("recompose", this.recompose, this);
 
       this.options = options;
       this.contexts = contexts;
       this.relations = relations;
-      this.contextsActive = {};
+      this.contextsActive = [];
       this.contextsToActivate = [];
       this.contextsToDeactivate = [];
     }
@@ -214,6 +280,11 @@
   // Helpers
   // -------
 
+  var log = function(line) {
+    history.push(line);
+  };
+
+  // For debug reasons.
   root.showHistory = function() {
     console.log(history.join("\n"));
   };
