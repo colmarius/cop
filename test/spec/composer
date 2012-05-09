@@ -1,0 +1,14 @@
+Composer
+--------
+
+Handles object structure modifications. Knows how to compose traits.
+
+API
+---
+
+- clone(object):				
+	returns a shallow copy of `object`
+
+- acquire(object, trait):	
+
+- restore(object, fromObject)
