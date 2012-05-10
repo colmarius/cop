@@ -17,26 +17,28 @@ be attached to this. Exported for both CommonJS and the browser.</p>            
   <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">Backbone</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="k">typeof</span> <span class="nx">require</span> <span class="o">!==</span> <span class="s1">&#39;undefined&#39;</span><span class="p">))</span>
     <span class="nx">Backbone</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;backbone&#39;</span><span class="p">);</span></pre></div>             </td>           </tr>                               <tr id="section-8">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-8">&#182;</a>               </div>               <p>Require Traits, if we're on the server, and it's not already present.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="kd">var</span> <span class="nx">Trait</span> <span class="o">=</span> <span class="nx">root</span><span class="p">.</span><span class="nx">Trait</span><span class="p">;</span>
   <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">Trait</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="k">typeof</span> <span class="nx">require</span> <span class="o">!==</span> <span class="s1">&#39;undefined&#39;</span><span class="p">))</span>
-    <span class="nx">Trait</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;traits&#39;</span><span class="p">).</span><span class="nx">Trait</span><span class="p">;</span>
-  </pre></div>             </td>           </tr>                               <tr id="section-9">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-9">&#182;</a>               </div>               <p>Debug log messages to console.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="kd">var</span> <span class="nx">log</span> <span class="o">=</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">;</span></pre></div>             </td>           </tr>                               <tr id="section-10">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-10">&#182;</a>               </div>               <h2>Cop.Context</h2>             </td>             <td class="code">               <div class="highlight"><pre>  
+    <span class="nx">Trait</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;traits&#39;</span><span class="p">).</span><span class="nx">Trait</span><span class="p">;</span></pre></div>             </td>           </tr>                               <tr id="section-9">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-9">&#182;</a>               </div>               <h2>Cop.Context</h2>             </td>             <td class="code">               <div class="highlight"><pre>  
   <span class="nx">Cop</span><span class="p">.</span><span class="nx">Context</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">_configure</span><span class="p">(</span><span class="nx">options</span> <span class="o">||</span> <span class="p">{});</span></pre></div>             </td>           </tr>                               <tr id="section-11">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-11">&#182;</a>               </div>               <p>this.initialize.apply(this, arguments);</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="p">};</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">_configure</span><span class="p">(</span><span class="nx">options</span> <span class="o">||</span> <span class="p">{});</span>
+  <span class="p">};</span>
 
   <span class="nx">_</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span><span class="nx">Cop</span><span class="p">.</span><span class="nx">Context</span><span class="p">.</span><span class="nx">prototype</span><span class="p">,</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">Events</span><span class="p">,</span> <span class="p">{</span>
 
     <span class="nx">initialize</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{},</span>
 
+    <span class="nx">destroy</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{},</span>
+
     <span class="nx">activate</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
       <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">active</span><span class="p">)</span> <span class="p">{</span>
         <span class="k">this</span><span class="p">.</span><span class="nx">active</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
-        <span class="k">this</span><span class="p">.</span><span class="nx">trigger</span><span class="p">(</span><span class="s2">&quot;activate&quot;</span><span class="p">);</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">trigger</span><span class="p">(</span><span class="s2">&quot;activate&quot;</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
       <span class="p">}</span>
     <span class="p">},</span>
 
     <span class="nx">deactivate</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
       <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">active</span><span class="p">)</span> <span class="p">{</span>
         <span class="k">this</span><span class="p">.</span><span class="nx">active</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
-        <span class="k">this</span><span class="p">.</span><span class="nx">trigger</span><span class="p">(</span><span class="s2">&quot;deactivate&quot;</span><span class="p">);</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">trigger</span><span class="p">(</span><span class="s2">&quot;deactivate&quot;</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
       <span class="p">}</span>
     <span class="p">},</span>
 
@@ -56,9 +58,7 @@ be attached to this. Exported for both CommonJS and the browser.</p>            
       <span class="p">});</span>
     <span class="p">},</span>
 
-    <span class="nx">_configure</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
-      <span class="kd">var</span> <span class="nx">options</span> <span class="o">=</span> <span class="nx">options</span> <span class="o">||</span> <span class="p">{};</span>
-      
+    <span class="nx">_configure</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>      
       <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">options</span><span class="p">.</span><span class="nx">name</span> <span class="o">||</span> <span class="nx">options</span><span class="p">.</span><span class="nx">name</span> <span class="o">===</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
         <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s2">&quot;Context object must have a name.&quot;</span><span class="p">);</span>
         
@@ -68,87 +68,230 @@ be attached to this. Exported for both CommonJS and the browser.</p>            
 
       <span class="k">if</span> <span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">isFunction</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">initialize</span><span class="p">))</span>
         <span class="k">this</span><span class="p">.</span><span class="nx">initialize</span> <span class="o">=</span> <span class="nx">options</span><span class="p">.</span><span class="nx">initialize</span><span class="p">;</span>
+
+      <span class="k">if</span> <span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">isFunction</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">destroy</span><span class="p">))</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">destroy</span> <span class="o">=</span> <span class="nx">options</span><span class="p">.</span><span class="nx">destroy</span><span class="p">;</span>
     <span class="p">}</span>
 
-  <span class="p">});</span></pre></div>             </td>           </tr>                               <tr id="section-12">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-12">&#182;</a>               </div>               <h2>Cop.ContextManager</h2>             </td>             <td class="code">               <div class="highlight"><pre>  
+  <span class="p">});</span></pre></div>             </td>           </tr>                               <tr id="section-10">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-10">&#182;</a>               </div>               <h2>Cop.Composer</h2>
+
+<p>Handles object structure modifications and knows how to compose traits.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nx">Cop</span><span class="p">.</span><span class="nx">Composer</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+
+  <span class="p">};</span>
+
+  <span class="nx">_</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span><span class="nx">Cop</span><span class="p">.</span><span class="nx">Composer</span><span class="p">.</span><span class="nx">prototype</span><span class="p">,</span> <span class="p">{</span>
+    </pre></div>             </td>           </tr>                               <tr id="section-11">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-11">&#182;</a>               </div>               <p>Return a shallow copy of object's own porperties.</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nx">clone</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">object</span><span class="p">)</span> <span class="p">{</span>
+
+    <span class="p">},</span></pre></div>             </td>           </tr>                               <tr id="section-12">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-12">&#182;</a>               </div>               <p>Return a new object that has the trait.</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nx">acquire</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">object</span><span class="p">,</span> <span class="nx">trait</span><span class="p">)</span> <span class="p">{</span>
+
+    <span class="p">},</span></pre></div>             </td>           </tr>                               <tr id="section-13">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-13">&#182;</a>               </div>               <p>No return value: 
+object will have same properties as fromObject. </p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nx">restore</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">object</span><span class="p">,</span> <span class="nx">fromObject</span><span class="p">)</span> <span class="p">{</span>
+
+    <span class="p">}</span>
+
+  <span class="p">});</span></pre></div>             </td>           </tr>                               <tr id="section-14">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-14">&#182;</a>               </div>               <h2>Cop.ContextManager</h2>             </td>             <td class="code">               <div class="highlight"><pre>  
   <span class="nx">Cop</span><span class="p">.</span><span class="nx">ContextManager</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">this</span><span class="p">.</span><span class="nx">_configure</span><span class="p">(</span><span class="nx">options</span> <span class="o">||</span> <span class="p">{});</span>
     <span class="k">this</span><span class="p">.</span><span class="nx">initialize</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">);</span>
   <span class="p">};</span>
 
+  <span class="kd">var</span> <span class="nx">history</span> <span class="o">=</span> <span class="nx">Cop</span><span class="p">.</span><span class="nx">ContextManager</span><span class="p">.</span><span class="nx">history</span> <span class="o">=</span> <span class="p">[];</span> 
+
   <span class="nx">_</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span><span class="nx">Cop</span><span class="p">.</span><span class="nx">ContextManager</span><span class="p">.</span><span class="nx">prototype</span><span class="p">,</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">Events</span><span class="p">,</span> <span class="p">{</span>
 
     <span class="nx">initialize</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{},</span>
 
-    <span class="nx">getContext</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span> <span class="p">{</span>
-      <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">contexts</span><span class="p">.</span><span class="nx">lookup</span><span class="p">(</span><span class="nx">name</span><span class="p">);</span>
+    <span class="nx">start</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+      <span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Context manager is preparing to start up.&quot;</span><span class="p">);</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">contexts</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">context</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Initializing context &quot;</span> <span class="o">+</span> <span class="nx">context</span><span class="p">.</span><span class="nx">name</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span><span class="p">);</span>
+        <span class="nx">context</span><span class="p">.</span><span class="nx">initialize</span><span class="p">();</span>
+        <span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Context &quot;</span> <span class="o">+</span> <span class="nx">context</span><span class="p">.</span><span class="nx">name</span> <span class="o">+</span> <span class="s2">&quot; is now initialized.&quot;</span><span class="p">);</span>
+      <span class="p">});</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">running</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+      <span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Context manager is running.&quot;</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">contextsToActivate</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">trigger</span><span class="p">(</span><span class="s2">&quot;recompose&quot;</span><span class="p">);</span>
+      <span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Context manager has started up.&quot;</span><span class="p">);</span>
     <span class="p">},</span>
 
-    <span class="nx">getRelation</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">context</span><span class="p">)</span> <span class="p">{</span>
-      <span class="kd">var</span> <span class="nx">relation</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">relations</span><span class="p">.</span><span class="nx">lookup</span><span class="p">(</span><span class="nx">context</span><span class="p">);</span>
-      <span class="k">if</span> <span class="p">(</span><span class="nx">relation</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">{</span><span class="nx">context</span><span class="o">:</span> <span class="nx">context</span><span class="p">,</span> 
-                <span class="nx">include</span><span class="o">:</span> <span class="nx">relation</span><span class="p">.</span><span class="nx">include</span><span class="p">,</span>
-                <span class="nx">exclude</span><span class="o">:</span> <span class="nx">relation</span><span class="p">.</span><span class="nx">exclude</span><span class="p">};</span>
+    <span class="nx">contextChanged</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">context</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Context &quot;</span> <span class="o">+</span> <span class="nx">context</span><span class="p">.</span><span class="nx">name</span> <span class="o">+</span> <span class="s2">&quot; triggered &quot;</span> <span class="o">+</span> 
+        <span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nx">active</span> <span class="o">?</span> <span class="s2">&quot;activate&quot;</span> <span class="o">:</span> <span class="s2">&quot;deactivate&quot;</span><span class="p">));</span>
+
+      <span class="k">if</span> <span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nx">active</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">contextsToActivate</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">context</span><span class="p">);</span>
+        <span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Context &quot;</span> <span class="o">+</span> <span class="nx">context</span><span class="p">.</span><span class="nx">name</span> <span class="o">+</span> <span class="s2">&quot; marked for activation.&quot;</span><span class="p">);</span>
+      <span class="p">}</span> 
+      <span class="k">else</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">contextsToDeactivate</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">context</span><span class="p">);</span>
+        <span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Context &quot;</span> <span class="o">+</span> <span class="nx">context</span><span class="p">.</span><span class="nx">name</span> <span class="o">+</span> <span class="s2">&quot; marked for deactivation.&quot;</span><span class="p">);</span>
+      <span class="p">}</span>
+
+      <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">running</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">trigger</span><span class="p">(</span><span class="s2">&quot;recompose&quot;</span><span class="p">);</span>
+      <span class="p">}</span>
+      <span class="k">else</span> <span class="p">{</span>
+        <span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Context manager not running yet. &quot;</span> <span class="o">+</span> 
+          <span class="s2">&quot;Context &quot;</span> <span class="o">+</span> <span class="nx">context</span><span class="p">.</span><span class="nx">name</span> <span class="o">+</span> <span class="s2">&quot; not activated.&quot;</span><span class="p">);</span>
+      <span class="p">}</span>
+    <span class="p">},</span>
+
+    <span class="nx">recompose</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">recomposing</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Recomposition Started:&quot;</span><span class="p">);</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">recomposing</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+
+        <span class="kd">var</span> <span class="nx">contexts</span> <span class="o">=</span> <span class="p">{</span>
+          <span class="nx">active</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">contextsActive</span><span class="p">,</span>
+          <span class="nx">toActivate</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">contextsToActivate</span><span class="p">,</span>
+          <span class="nx">toDeactivate</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">contextsToDeactivate</span>
+        <span class="p">};</span></pre></div>             </td>           </tr>                               <tr id="section-15">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-15">&#182;</a>               </div>               <p>TODO: recomposition logic</p>             </td>             <td class="code">               <div class="highlight"><pre>        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Contexts: &quot;</span><span class="p">,</span> <span class="nx">contexts</span><span class="p">);</span>
+
+        <span class="nx">contexts</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">resolveDependencies</span><span class="p">(</span><span class="nx">contexts</span><span class="p">);</span>
+
+        <span class="kd">var</span> <span class="nx">objects</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">objectsToRecompose</span><span class="p">(</span><span class="nx">contexts</span><span class="p">);</span></pre></div>             </td>           </tr>                               <tr id="section-16">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-16">&#182;</a>               </div>               <p>...</p>             </td>             <td class="code">               <div class="highlight"><pre>        <span class="nx">contexts</span><span class="p">.</span><span class="nx">active</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">difference</span><span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">union</span><span class="p">(</span><span class="nx">contexts</span><span class="p">.</span><span class="nx">active</span><span class="p">,</span> 
+                                               <span class="nx">contexts</span><span class="p">.</span><span class="nx">toActivate</span><span class="p">),</span> 
+                                       <span class="nx">contexts</span><span class="p">.</span><span class="nx">toDeactivate</span><span class="p">);</span>
+        
+        <span class="k">this</span><span class="p">.</span><span class="nx">contextsActive</span>       <span class="o">=</span> <span class="nx">contexts</span><span class="p">.</span><span class="nx">active</span><span class="p">;</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">contextsToActivate</span>   <span class="o">=</span> <span class="p">[];</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">contextsToDeactivate</span> <span class="o">=</span> <span class="p">[];</span>
+
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+
+        <span class="k">this</span><span class="p">.</span><span class="nx">recomposing</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+        <span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Recomposition Ended!&quot;</span><span class="p">);</span>
+      <span class="p">}</span>
+      <span class="k">else</span> <span class="p">{</span>
+        <span class="nx">log</span><span class="p">(</span><span class="s2">&quot;ALREADY RECOMPOSING CONTEXTS.&quot;</span><span class="p">);</span>
+      <span class="p">}</span>
+    <span class="p">},</span>
+
+    <span class="nx">resolveDependencies</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">contexts</span><span class="p">)</span> <span class="p">{</span></pre></div>             </td>           </tr>                               <tr id="section-17">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-17">&#182;</a>               </div>               <ol>
+<li>Look how relations impact on contexts to (de) activate.</li>
+<li>contexts.toActivate = contexts.toActivate - contexts.active 
+<ul><li>contexts.toDeactivate</li></ul></li>
+<li>contexts.toDeactivate = contexts.toDeactivate</li>
+</ol>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="k">return</span> <span class="nx">contexts</span><span class="p">;</span>
+    <span class="p">},</span>
+
+    <span class="nx">objectsToRecompose</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">contexts</span><span class="p">)</span> <span class="p">{</span></pre></div>             </td>           </tr>                               <tr id="section-18">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-18">&#182;</a>               </div>               <ol>
+<li>Look into contexts.toActivate and contexts.toDeactivate
+and return records of those objects.</li>
+</ol>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="kd">var</span> <span class="nx">results</span> <span class="o">=</span> <span class="p">[];</span>
+
+      <span class="kd">function</span> <span class="nx">addToResults</span><span class="p">(</span><span class="nx">context</span><span class="p">,</span> <span class="nx">adaptation</span><span class="p">,</span> <span class="nx">forcedInsertion</span><span class="p">)</span> <span class="p">{</span>
+          <span class="kd">var</span> <span class="nx">found</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+          <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">results</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">result</span><span class="p">.</span><span class="nx">object</span> <span class="o">==</span> <span class="nx">adaptation</span><span class="p">.</span><span class="nx">object</span><span class="p">)</span> <span class="p">{</span>
+              <span class="nx">found</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+              <span class="k">if</span> <span class="p">(</span><span class="nx">forcedInsertion</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">result</span><span class="p">.</span><span class="nx">traits</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">adaptation</span><span class="p">.</span><span class="nx">trait</span><span class="p">);</span>
+                <span class="nx">result</span><span class="p">.</span><span class="nx">contexts</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">context</span><span class="p">);</span>
+              <span class="p">}</span>
+            <span class="p">}</span>
+          <span class="p">});</span>
+          <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">found</span> <span class="o">&amp;&amp;</span> <span class="nx">forcedInsertion</span><span class="p">)</span> 
+            <span class="nx">results</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span>
+              <span class="nx">object</span><span class="o">:</span>   <span class="nx">adaptation</span><span class="p">.</span><span class="nx">object</span><span class="p">,</span>
+              <span class="nx">traits</span><span class="o">:</span>   <span class="p">[</span><span class="nx">adaptation</span><span class="p">.</span><span class="nx">trait</span><span class="p">],</span>
+              <span class="nx">contexts</span><span class="o">:</span> <span class="p">[</span><span class="nx">context</span><span class="p">]</span>
+            <span class="p">});</span>
+          <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">found</span><span class="p">)</span>
+            <span class="nx">results</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span>
+              <span class="nx">object</span><span class="o">:</span>   <span class="nx">adaptation</span><span class="p">.</span><span class="nx">object</span><span class="p">,</span>
+              <span class="nx">traits</span><span class="o">:</span>   <span class="p">[],</span>
+              <span class="nx">contexts</span><span class="o">:</span> <span class="p">[]</span>
+            <span class="p">});</span>
+      <span class="p">}</span>
+
+      <span class="nx">log</span><span class="p">(</span><span class="s2">&quot;1. Look into contexts.toActivate adapted objects.&quot;</span><span class="p">);</span>
+      <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">contexts</span><span class="p">.</span><span class="nx">toActivate</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">context</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nx">adaptations</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">adaptation</span><span class="p">)</span> <span class="p">{</span>
+          <span class="nx">addToResults</span><span class="p">(</span><span class="nx">context</span><span class="p">,</span> <span class="nx">adaptation</span><span class="p">,</span> <span class="kc">true</span><span class="p">);</span>
+        <span class="p">});</span>
+      <span class="p">});</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;results (1): &quot;</span><span class="p">,</span> <span class="nx">results</span><span class="p">);</span>
+
+      <span class="nx">log</span><span class="p">(</span><span class="s2">&quot;2. Look into contexts.toDeactivate adapted objects.&quot;</span><span class="p">);</span>
+      <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">contexts</span><span class="p">.</span><span class="nx">toDeactivate</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">context</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nx">adaptations</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">adaptation</span><span class="p">)</span> <span class="p">{</span>
+          <span class="nx">addToResults</span><span class="p">(</span><span class="nx">context</span><span class="p">,</span> <span class="nx">adaptation</span><span class="p">);</span>
+        <span class="p">});</span>
+      <span class="p">});</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;results (2): &quot;</span><span class="p">,</span> <span class="nx">results</span><span class="p">);</span>
+
+      <span class="nx">log</span><span class="p">(</span><span class="s2">&quot;3. Look into contexts.active and add only the &quot;</span> <span class="o">+</span>
+          <span class="s2">&quot;adapted objects with empty traits and contexts.&quot;</span><span class="p">);</span>
+      <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">contexts</span><span class="p">.</span><span class="nx">active</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">context</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nx">adaptations</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">adaptation</span><span class="p">)</span> <span class="p">{</span>
+          <span class="nx">addToResults</span><span class="p">(</span><span class="nx">context</span><span class="p">,</span> <span class="nx">adaptation</span><span class="p">,</span> <span class="kc">false</span><span class="p">);</span>
+        <span class="p">});</span>
+      <span class="p">});</span>
+
+
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;results (3): &quot;</span><span class="p">,</span> <span class="nx">results</span><span class="p">);</span></pre></div>             </td>           </tr>                               <tr id="section-19">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-19">&#182;</a>               </div>               <ol>
+<li>Create records for objects like this:</li>
+</ol>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="cm">/*</span>
+<span class="cm">      recordObject = {</span>
+<span class="cm">        object: reference,</span>
+<span class="cm">        traits: [],</span>
+<span class="cm">        contexts: []</span>
+<span class="cm">      }*/</span>    
     <span class="p">},</span>
 
     <span class="nx">_configure</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
       <span class="kd">var</span> <span class="nx">contexts</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Dictionary</span><span class="p">();</span>
       <span class="kd">var</span> <span class="nx">relations</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Dictionary</span><span class="p">();</span>
+      </pre></div>             </td>           </tr>                               <tr id="section-20">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-20">&#182;</a>               </div>               <p>Initialize contexts.</p>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">_</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">contexts</span><span class="p">))</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s2">&quot;Cannot create context manager without contexts.&quot;</span><span class="p">);</span>
 
-      <span class="kd">function</span> <span class="nx">checkContext</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">if</span> <span class="p">(</span><span class="nx">name</span> <span class="o">==</span> <span class="kc">undefined</span><span class="p">)</span>
-          <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s2">&quot;Context undefined.&quot;</span><span class="p">);</span>
-        <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">contexts</span><span class="p">.</span><span class="nx">contains</span><span class="p">(</span><span class="nx">name</span><span class="p">))</span>
-          <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s2">&quot;Unregistered context &#39;&quot;</span> <span class="o">+</span> <span class="nx">name</span> <span class="o">+</span> <span class="s2">&quot;&#39;.&quot;</span><span class="p">);</span>
+      <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">contexts</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">context</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">contexts</span><span class="p">.</span><span class="nx">contains</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nx">name</span><span class="p">))</span> 
+          <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s2">&quot;Already registered context: &quot;</span> <span class="o">+</span> <span class="nx">context</span><span class="p">.</span><span class="nx">name</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span><span class="p">);</span>
+        <span class="k">else</span> <span class="p">{</span>
+          <span class="nx">contexts</span><span class="p">.</span><span class="nx">store</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nx">name</span><span class="p">,</span> <span class="nx">context</span><span class="p">);</span>
+          <span class="nx">context</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;activate&quot;</span><span class="p">,</span> <span class="nx">self</span><span class="p">.</span><span class="nx">contextChanged</span><span class="p">,</span> <span class="nx">self</span><span class="p">);</span>
+          <span class="nx">context</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;deactivate&quot;</span><span class="p">,</span> <span class="nx">self</span><span class="p">.</span><span class="nx">contextChanged</span><span class="p">,</span> <span class="nx">self</span><span class="p">);</span>
+        <span class="p">}</span>
+      <span class="p">});</span></pre></div>             </td>           </tr>                               <tr id="section-21">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-21">&#182;</a>               </div>               <p>Initialize relations.</p>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="k">if</span> <span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">relations</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="nx">options</span><span class="p">.</span><span class="nx">relations</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="cm">/*_.each(options.relations, function(relation) {</span>
+<span class="cm">          var contextName = relation.context.name;</span>
+
+<span class="cm">          if (!contextName)</span>
+<span class="cm">            throw new Error(&quot;Unknown relation: &quot; + relation + &quot;.&quot;);</span>
+
+<span class="cm">          if (!contexts.contains(contextName))</span>
+<span class="cm">            throw new Error(&quot;Unregistered context &#39;&quot; + contextName + &quot;.&quot; );</span>
+
+<span class="cm">          if (relations.contains(contextName))</span>
+<span class="cm">            throw new Error(&quot;Relation exists for context: &quot; + contextName + &quot;.&quot;);</span>
+<span class="cm">          else</span>
+
+<span class="cm">//DIVIDER</span>
+<span class="cm">            relations.store(contextName, relation); </span>
+<span class="cm">        });*/</span>
       <span class="p">}</span>
 
-      <span class="kd">function</span> <span class="nx">parse</span><span class="p">(</span><span class="nx">relation</span><span class="p">,</span> <span class="nx">type</span><span class="p">)</span> <span class="p">{</span>
-        <span class="kd">var</span> <span class="nx">relationArray</span> <span class="o">=</span> <span class="nx">relation</span><span class="p">[</span><span class="nx">type</span><span class="p">];</span>
-        
-        <span class="k">if</span> <span class="p">(</span><span class="nx">relationArray</span> <span class="o">==</span> <span class="kc">undefined</span><span class="p">)</span>
-          <span class="k">return</span><span class="p">;</span>
-        <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">_</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">relationArray</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="nx">_</span><span class="p">.</span><span class="nx">isString</span><span class="p">(</span><span class="nx">relationArray</span><span class="p">))</span>
-          <span class="k">delete</span> <span class="nx">relation</span><span class="p">[</span><span class="nx">type</span><span class="p">];</span>
-        <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">isString</span><span class="p">(</span><span class="nx">relationArray</span><span class="p">))</span>
-          <span class="nx">relationArray</span> <span class="o">=</span> <span class="p">[</span><span class="nx">relationArray</span><span class="p">];</span>
-
-        <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">relationArray</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span> <span class="p">{</span>
-          <span class="nx">checkContext</span><span class="p">(</span><span class="nx">name</span><span class="p">);</span>
-        <span class="p">});</span>
-        
-				<span class="k">return</span> <span class="nx">relationArray</span><span class="p">;</span>
-      <span class="p">}</span>
-
-      <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">options</span><span class="p">)</span> 
-        <span class="nx">options</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">extend</span><span class="p">({},</span> <span class="k">this</span><span class="p">.</span><span class="nx">options</span><span class="p">,</span> <span class="nx">options</span><span class="p">);</span>
-
-      <span class="k">if</span> <span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">contexts</span><span class="p">)</span> <span class="p">{</span>
-        <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">contexts</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span> <span class="p">{</span>
-          <span class="k">if</span> <span class="p">(</span><span class="nx">contexts</span><span class="p">.</span><span class="nx">contains</span><span class="p">(</span><span class="nx">name</span><span class="p">))</span>
-            <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s2">&quot;Context manager has context: &quot;</span> <span class="o">+</span> <span class="nx">name</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span><span class="p">);</span>
-          <span class="k">else</span>
-            <span class="nx">contexts</span><span class="p">.</span><span class="nx">store</span><span class="p">(</span><span class="nx">name</span><span class="p">,</span> <span class="k">new</span> <span class="nx">Cop</span><span class="p">.</span><span class="nx">Context</span><span class="p">({</span><span class="nx">name</span><span class="o">:</span> <span class="nx">name</span><span class="p">}));</span>
-        <span class="p">});</span>
-      <span class="p">}</span>
-      
-      <span class="k">if</span> <span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">relations</span><span class="p">)</span> <span class="p">{</span>
-        <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">relations</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">relation</span><span class="p">,</span> <span class="nx">contextName</span><span class="p">)</span> <span class="p">{</span>
-          <span class="nx">checkContext</span><span class="p">(</span><span class="nx">contextName</span><span class="p">);</span>
-          <span class="nx">relation</span><span class="p">.</span><span class="nx">include</span> <span class="o">=</span> <span class="nx">parse</span><span class="p">(</span><span class="nx">relation</span><span class="p">,</span> <span class="s1">&#39;include&#39;</span><span class="p">);</span>
-          <span class="nx">relation</span><span class="p">.</span><span class="nx">exclude</span> <span class="o">=</span> <span class="nx">parse</span><span class="p">(</span><span class="nx">relation</span><span class="p">,</span> <span class="s1">&#39;exclude&#39;</span><span class="p">);</span></pre></div>             </td>           </tr>                               <tr id="section-13">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-13">&#182;</a>               </div>               <p>If checks passed Ok store context relation.</p>             </td>             <td class="code">               <div class="highlight"><pre>          <span class="nx">relations</span><span class="p">.</span><span class="nx">store</span><span class="p">(</span><span class="nx">contextName</span><span class="p">,</span> <span class="nx">relation</span><span class="p">);</span>
-        <span class="p">});</span>
-      <span class="p">}</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;recompose&quot;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">recompose</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
 
       <span class="k">this</span><span class="p">.</span><span class="nx">options</span> <span class="o">=</span> <span class="nx">options</span><span class="p">;</span>
       <span class="k">this</span><span class="p">.</span><span class="nx">contexts</span> <span class="o">=</span> <span class="nx">contexts</span><span class="p">;</span>
       <span class="k">this</span><span class="p">.</span><span class="nx">relations</span> <span class="o">=</span> <span class="nx">relations</span><span class="p">;</span>
-      <span class="k">this</span><span class="p">.</span><span class="nx">currentActive</span> <span class="o">=</span> <span class="p">{};</span>
-      <span class="k">this</span><span class="p">.</span><span class="nx">toActivate</span> <span class="o">=</span> <span class="p">{};</span>
-      <span class="k">this</span><span class="p">.</span><span class="nx">toDeactivate</span> <span class="o">=</span> <span class="p">{};</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">contextsActive</span> <span class="o">=</span> <span class="p">[];</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">contextsToActivate</span> <span class="o">=</span> <span class="p">[];</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">contextsToDeactivate</span> <span class="o">=</span> <span class="p">[];</span>
     <span class="p">}</span>
 
-  <span class="p">});</span></pre></div>             </td>           </tr>                               <tr id="section-14">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-14">&#182;</a>               </div>               <h2>Helpers</h2>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="kd">function</span> <span class="nx">Dictionary</span><span class="p">(</span><span class="nx">startValues</span><span class="p">)</span> <span class="p">{</span>
+  <span class="p">});</span></pre></div>             </td>           </tr>                               <tr id="section-22">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-22">&#182;</a>               </div>               <p>todo: checks on relation object</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="kd">var</span> <span class="nx">log</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">line</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">history</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">line</span><span class="p">);</span>
+  <span class="p">};</span></pre></div>             </td>           </tr>                               <tr id="section-23">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-23">&#182;</a>               </div>               <h2>Helpers</h2>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nx">root</span><span class="p">.</span><span class="nx">showHistory</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">history</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s2">&quot;\n&quot;</span><span class="p">));</span>
+  <span class="p">};</span>
+
+  <span class="kd">function</span> <span class="nx">Dictionary</span><span class="p">(</span><span class="nx">startValues</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">this</span><span class="p">.</span><span class="nx">values</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">clone</span><span class="p">(</span><span class="nx">startValues</span><span class="p">)</span> <span class="o">||</span> <span class="p">{};</span>
   <span class="p">}</span>
 
@@ -175,4 +318,4 @@ be attached to this. Exported for both CommonJS and the browser.</p>            
 
 <span class="p">}).</span><span class="nx">call</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
 
-</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 
+</pre></div>             </td>           </tr>                               <tr id="section-24">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-24">&#182;</a>               </div>               <p>For debug reasons.</p>             </td>             <td class="code">               <div class="highlight"><pre>undefined</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 
