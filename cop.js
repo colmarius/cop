@@ -183,18 +183,15 @@
       if (!this.recomposing) {
         log("Recomposition Started:");
         this.recomposing = true;
-
         // TODO: recomposition logic
         log("Contexts active: [" + _.pluck(contexts.active, 'name') + "], to activate: [" + _.pluck(contexts.toActivate, 'name') + "], to deactivate: [" + _.pluck(contexts.toDeactivate, 'name') + "].");
         contexts = this.resolveDependencies(contexts);
         console.log("Contexts: ", contexts);
-        var adaptations = this.objectsToRecompose(contexts);
-        console.log("Adaptations: ", adaptations);
+        var adaptations = this.adaptationsToRecompose(contexts);
         this.compose(adaptations);
-        //this.inspect(adaptations);
-        //this.deploy(adaptations);
+        console.log("Composed adaptations: ", adaptations);
+        this.deploy(adaptations);
         // ...
-
         this.contexts.active       = _.difference(_.union(contexts.active, contexts.toActivate), contexts.toDeactivate);
         this.contexts.toActivate   = [];
         this.contexts.toDeactivate = [];
@@ -214,7 +211,7 @@
       return contexts;
     },
 
-    objectsToRecompose: function(contexts) {
+    adaptationsToRecompose: function(contexts) {
       var results = [];
       function addToResults(context, adaptation, addTraits) {
           var found = false;
@@ -275,12 +272,26 @@
     },
 
     compose: function(adaptations) {
+      function checkConflicts(adaptation) {
+        try{
+          Trait.create({}, adaptation.composedTrait);
+        }
+        catch (err) {
+          adaptation.hasConflicts = true;
+          adaptation.errorMessage = err.message;
+        }
+      }
       _.each(adaptations, function(adaptation){
-        // TODO: trait composition
-        // composedTrait = Trait.compose(adaptation.traits);
-        // hasConflicts(composedTrait) -> mark as conflicting
-        // composedObject = Object.create(adaptation.originalObject, composedTrait); 
+        adaptation.composedTrait = Trait.compose.apply(null, adaptation.traits);
+        checkConflicts(adaptation);
+        if (adaptation.hasConflicts)
+          log("Composed trait has conflicts: " + adaptation.errorMessage);
+        else
+          adaptation.composedObject = Object.create(adaptation.originalObject, adaptation.composedTrait);
       });
+    },
+
+    deploy: function(adaptations) {
     },
 
     _configure: function(options) {
