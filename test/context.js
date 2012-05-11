@@ -33,27 +33,27 @@ $(document).ready(function() {
 		}
   });
 
-  test("Context: setAdaptation", function() {
+  test("Context: adapt", function() {
     var context = new Cop.Context({name: 'test'}),
         global  = window,
         object  = {},
         trait   = new Trait({}),
         flag    = false;
 
-    context.on("setAdaptation", function(adaptedObject) {
+    context.on("adapt", function(adaptedObject) {
       flag = true;
       equal(adaptedObject, object, "should adapt the same object");
     });
 
     try {
-      context.setAdaptation(global, trait);
-      ok(false, "an exception should have thrown trying to setAdaptation an adaptation for the global object");
+      context.adapt(global, trait);
+      ok(false, "an exception should have thrown trying to adapt an adaptation for the global object");
     } catch (err) {
 			equal(err.message, "Cannot adapt the global object.");
 		}
     
     try {
-      context.setAdaptation(object, trait);
+      context.adapt(object, trait);
 			ok(true, "object adapted with trait");
     } catch (err) {
       ok(false, "should have adapted object with trait");
@@ -62,7 +62,7 @@ $(document).ready(function() {
     equal(flag, true, "flag should be true");
 
     try {
-      context.setAdaptation(object, Trait({}));
+      context.adapt(object, Trait({}));
       ok(false, "should have thrown an exception trying to adapt the same object twice");
     } catch (err) {
       equal(err.message, "Object already adapted.");
@@ -74,7 +74,7 @@ $(document).ready(function() {
         object = {},
         trait = new Trait({});
 
-    context.setAdaptation(object, trait);
+    context.adapt(object, trait);
 
     var adapted = context.getAdaptation(object);
 

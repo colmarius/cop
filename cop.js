@@ -65,12 +65,12 @@
       }
     },
 
-    setAdaptation: function(object, trait) {
+    adapt: function(object, trait) {
       if (object === root) throw new Error("Cannot adapt the global object.");
       if (!_.isObject(object)) throw new Error("Only objects can be adapted.");
       if (this.getAdaptation(object)) throw new Error("Object already adapted.");
       this.adaptations.push({object: object, trait: trait});
-      this.trigger("setAdaptation", object);
+      this.trigger("adapt", object);
     },
 
     getAdaptation: function(object) {
@@ -84,8 +84,8 @@
       this.name = options.name;
       this.active = false;
       this.adaptations = [];
-      if (_.isFunction(options.initialize)) this.initialize = options.initialize;
-      if (_.isFunction(options.destroy))    this.destroy = options.destroy;
+      if (options.initialize) this.initialize = options.initialize;
+      if (options.destroy)    this.destroy = options.destroy;
     }
 
   });
@@ -212,7 +212,7 @@
       var results = [];
       function addToResults(context, adaptation, addTraits) {
           var found = false;
-          addTraits = addTraits || false;
+          addTraits || (addTraits = false);
           _.each(results, function(result) {
             if (result.object == adaptation.object) {
               found = true;
@@ -273,9 +273,9 @@
         if (contexts.contains(context.name)) throw new Error("Already registered context: " + context.name + ".");
         else {
           contexts.store(context.name, context);
-          context.on("activate", self.onContextChanged, self);
+          context.on("activate",   self.onContextChanged, self);
           context.on("deactivate", self.onContextChanged, self);
-          context.on("setAdaptation", self.onObjectAdapted, self);
+          context.on("adapt",      self.onObjectAdapted,  self);
         }
       });
       // Initialize relations.

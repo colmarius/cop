@@ -43,14 +43,14 @@ var cm = new Cop.ContextManager({
   }
 });
 
-batteryLow.setAdaptation(MYAPP, Trait({
+batteryLow.adapt(MYAPP, Trait({
   initScreen: function() {
     //this._super.initScreen();
     console.log("MYAPP running with low battery.")
   }
 }));
 
-offline.setAdaptation(MYAPP, Trait({
+offline.adapt(MYAPP, Trait({
   initScreen: function() {
     console.log("MYAPP running with no internet connection.");
   }
