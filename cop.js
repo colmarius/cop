@@ -135,14 +135,14 @@
 
     start: function() {
       log("Context manager is preparing to start up.");
-      this.contexts.each(function(context) {
+      this.contexts.registered.each(function(context) {
         log("Initializing context " + context.name + ".");
         context.initialize();
         log("Context " + context.name + " is now initialized.");
       });
       this.running = true;
       log("Context manager is running.");
-      if (this.contextsToActivate.length > 0) this.trigger("recompose");
+      if (this.contexts.toActivate.length > 0) this.trigger("recompose", this.contexts);
       log("Context manager has started up.");
     },
 
@@ -163,26 +163,21 @@
     onContextChanged: function(context) {
       log("Context " + context.name + " triggered " + (context.active ? "activate" : "deactivate"));
       if (context.active) {
-        this.contextsToActivate.push(context);
+        this.contexts.toActivate.push(context);
         log("Context " + context.name + " marked for activation.");
       } 
       else {
-        this.contextsToDeactivate.push(context);
+        this.contexts.toDeactivate.push(context);
         log("Context " + context.name + " marked for deactivation.");
       }
-      if (this.running) this.trigger("recompose");
+      if (this.running) this.trigger("recompose", this.contexts);
       else log("Context manager not running yet. Context " + context.name + " not activated.");
     },
 
-    recompose: function() {
+    recompose: function(contexts) {
       if (!this.recomposing) {
         log("Recomposition Started:");
         this.recomposing = true;
-        var contexts = {
-          active: this.contextsActive,
-          toActivate: this.contextsToActivate,
-          toDeactivate: this.contextsToDeactivate
-        };
 
         // TODO: recomposition logic
         console.log("Contexts: ", contexts);
@@ -190,9 +185,9 @@
         var objects = this.objectsToRecompose(contexts);
         // ...
 
-        this.contextsActive       = _.difference(_.union(contexts.active, contexts.toActivate), contexts.toDeactivate);
-        this.contextsToActivate   = [];
-        this.contextsToDeactivate = [];
+        this.contexts.active       = _.difference(_.union(contexts.active, contexts.toActivate), contexts.toDeactivate);
+        this.contexts.toActivate   = [];
+        this.contexts.toDeactivate = [];
         console.log("ContextManager: ", this);
         this.recomposing = false;
         log("Recomposition Ended!");
@@ -284,11 +279,13 @@
       }
       this.on("recompose", this.recompose, this);
       this.options = options;
-      this.contexts = contexts;
       this.relations = relations;
-      this.contextsActive = [];
-      this.contextsToActivate = [];
-      this.contextsToDeactivate = [];
+      this.contexts = {
+        registered:   contexts,
+        active:       [],
+        toActivate:   [],
+        toDeactivate: []
+      };
       this.adaptedObjects = [];
     }
 
