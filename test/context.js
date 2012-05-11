@@ -35,9 +35,15 @@ $(document).ready(function() {
 
   test("Context: setAdaptation", function() {
     var context = new Cop.Context({name: 'test'}),
-        global = window,
-        object = {},
-        trait = new Trait({});
+        global  = window,
+        object  = {},
+        trait   = new Trait({}),
+        flag    = false;
+
+    context.on("setAdaptation", function(adaptedObject) {
+      flag = true;
+      equal(adaptedObject, object, "should adapt the same object");
+    });
 
     try {
       context.setAdaptation(global, trait);
@@ -51,6 +57,15 @@ $(document).ready(function() {
 			ok(true, "object adapted with trait");
     } catch (err) {
       ok(false, "should have adapted object with trait");
+    }
+
+    equal(flag, true, "flag should be true");
+
+    try {
+      context.setAdaptation(object, Trait({}));
+      ok(false, "should have thrown an exception trying to adapt the same object twice");
+    } catch (err) {
+      equal(err.message, "Object already adapted.");
     }
   });
 
