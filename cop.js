@@ -66,9 +66,11 @@
     },
 
     setAdaptation: function(object, trait) {
-      if (!_.isObject(object)) throw new Error("Only objects can be adapted.");
       if (object === root) throw new Error("Cannot adapt the global object.");
+      if (!_.isObject(object)) throw new Error("Only objects can be adapted.");
+      if (this.getAdaptation(object)) throw new Error("Object already adapted");
       this.adaptations.push({object: object, trait: trait});
+      this.trigger("setAdaptation", object);
     },
 
     getAdaptation: function(object) {
@@ -144,7 +146,21 @@
       log("Context manager has started up.");
     },
 
-    contextChanged: function(context) {
+    onObjectAdapted: function(object) {
+      var adaptedObject = _.find(this.adaptedObjects, function(adapted){
+        return adapted.object === object;
+      });
+      if (!adaptedObject) {
+        this.adaptedObjects.push({
+          object: object,
+          clone: _.clone(object)
+        });
+        log("Adapting new object: " + object + ".");
+      }
+      else log("Object already adapted: " + object + ".");
+    },
+
+    onContextChanged: function(context) {
       log("Context " + context.name + " triggered " + (context.active ? "activate" : "deactivate"));
       if (context.active) {
         this.contextsToActivate.push(context);
@@ -257,8 +273,9 @@
         if (contexts.contains(context.name)) throw new Error("Already registered context: " + context.name + ".");
         else {
           contexts.store(context.name, context);
-          context.on("activate", self.contextChanged, self);
-          context.on("deactivate", self.contextChanged, self);
+          context.on("activate", self.onContextChanged, self);
+          context.on("deactivate", self.onContextChanged, self);
+          context.on("setAdaptation", self.onObjectAdapted, self);
         }
       });
       // Initialize relations.
@@ -272,6 +289,7 @@
       this.contextsActive = [];
       this.contextsToActivate = [];
       this.contextsToDeactivate = [];
+      this.adaptedObjects = [];
     }
 
   });
