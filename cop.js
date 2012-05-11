@@ -68,7 +68,7 @@
     setAdaptation: function(object, trait) {
       if (object === root) throw new Error("Cannot adapt the global object.");
       if (!_.isObject(object)) throw new Error("Only objects can be adapted.");
-      if (this.getAdaptation(object)) throw new Error("Object already adapted");
+      if (this.getAdaptation(object)) throw new Error("Object already adapted.");
       this.adaptations.push({object: object, trait: trait});
       this.trigger("setAdaptation", object);
     },
