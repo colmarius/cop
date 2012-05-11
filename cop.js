@@ -67,12 +67,8 @@
     },
 
     setAdaptation: function(object, trait) {
-      if (!_.isObject(object))
-        throw new Error("Only objects can be adapted.");
-
-      if (object === root)
-        throw new Error("Cannot adapt the global object.");
-      
+      if (!_.isObject(object)) throw new Error("Only objects can be adapted.");
+      if (object === root) throw new Error("Cannot adapt the global object.");
       this.adaptations.push({object: object, trait: trait});
     },
 
@@ -83,18 +79,12 @@
     },
 
     _configure: function(options) {      
-      if (!options.name || options.name === "")
-        throw new Error("Context object must have a name.");
-        
+      if (!options.name || options.name === "") throw new Error("Context object must have a name.");
       this.name = options.name;
       this.active = false;
       this.adaptations = [];
-
-      if (_.isFunction(options.initialize))
-        this.initialize = options.initialize;
-
-      if (_.isFunction(options.destroy))
-        this.destroy = options.destroy;
+      if (_.isFunction(options.initialize)) this.initialize = options.initialize;
+      if (_.isFunction(options.destroy))    this.destroy = options.destroy;
     }
 
   });
@@ -151,15 +141,12 @@
       });
       this.running = true;
       log("Context manager is running.");
-      if (this.contextsToActivate.length > 0)
-        this.trigger("recompose");
+      if (this.contextsToActivate.length > 0) this.trigger("recompose");
       log("Context manager has started up.");
     },
 
     contextChanged: function(context) {
-      log("Context " + context.name + " triggered " + 
-        (context.active ? "activate" : "deactivate"));
-
+      log("Context " + context.name + " triggered " + (context.active ? "activate" : "deactivate"));
       if (context.active) {
         this.contextsToActivate.push(context);
         log("Context " + context.name + " marked for activation.");
@@ -168,21 +155,14 @@
         this.contextsToDeactivate.push(context);
         log("Context " + context.name + " marked for deactivation.");
       }
-
-      if (this.running) {
-        this.trigger("recompose");
-      }
-      else {
-        log("Context manager not running yet. " + 
-          "Context " + context.name + " not activated.");
-      }
+      if (this.running) this.trigger("recompose");
+      else log("Context manager not running yet. Context " + context.name + " not activated.");
     },
 
     recompose: function() {
       if (!this.recomposing) {
         log("Recomposition Started:");
         this.recomposing = true;
-
         var contexts = {
           active: this.contextsActive,
           toActivate: this.contextsToActivate,
@@ -191,29 +171,18 @@
 
         // TODO: recomposition logic
         console.log("Contexts: ", contexts);
-
         contexts = this.resolveDependencies(contexts);
-
         var objects = this.objectsToRecompose(contexts);
-
         // ...
 
-        contexts.active = _.difference(_.union(contexts.active, 
-                                               contexts.toActivate), 
-                                       contexts.toDeactivate);
-        
-        this.contextsActive       = contexts.active;
+        this.contextsActive       = _.difference(_.union(contexts.active, contexts.toActivate), contexts.toDeactivate);
         this.contextsToActivate   = [];
         this.contextsToDeactivate = [];
-
-        console.log(this);
-
+        console.log("ContextManager: ", this);
         this.recomposing = false;
         log("Recomposition Ended!");
       }
-      else {
-        log("ALREADY RECOMPOSING CONTEXTS.");
-      }
+      else log("ALREADY RECOMPOSING CONTEXTS.");
     },
 
     resolveDependencies: function(contexts) {
@@ -226,11 +195,9 @@
 
     objectsToRecompose: function(contexts) {
       var results = [];
-
       function addToResults(context, adaptation, addTraits) {
           var addTraits = addTraits || false;
           var found = false;
-
           _.each(results, function(result) {
             if (result.object == adaptation.object) {
               found = true;
@@ -253,27 +220,21 @@
               contexts: []
             });
       }
-
-      log("1. Look into contexts.toActivate adapted objects, " +
-          "and add those objects with traits.");
+      log("1. Look into contexts.toActivate adapted objects, and add those objects with traits.");
       _.each(contexts.toActivate, function(context) {
         _.each(context.adaptations, function(adaptation) {
           addToResults(context, adaptation, true);
         });
       });
       console.log("results (1): ", results);
-
-      log("2. Look into contexts.toDeactivate adapted objects, " +
-          "and add only the objects.");
+      log("2. Look into contexts.toDeactivate adapted objects, and add only the objects.");
       _.each(contexts.toDeactivate, function(context) {
         _.each(context.adaptations, function(adaptation) {
           addToResults(context, adaptation);
         });
       });
       console.log("results (2): ", results);
-
-      log("3. Look into adapted objects in results, " +
-        "and for those objects add active.contexts traits.");
+      log("3. Look into objects in results, and for those objects add active.contexts traits.");
       _.each(results, function(result) {
         _.each(contexts.active, function(activeContext) {
           var adaptation = activeContext.getAdaptation(result.object);
@@ -284,7 +245,6 @@
         });
       });
       console.log("results (3): ", results);
-
       return results;
     },
 
@@ -292,21 +252,16 @@
       var self = this;
       var contexts = new Dictionary();
       var relations = new Dictionary();
-      
       // Initialize contexts.
-      if (!_.isArray(options.contexts))
-        throw new Error("Cannot create context manager without contexts.");
-
+      if (!_.isArray(options.contexts)) throw new Error("Cannot create context manager without contexts.");
       _.each(options.contexts, function(context) {
-        if (contexts.contains(context.name)) 
-          throw new Error("Already registered context: " + context.name + ".");
+        if (contexts.contains(context.name)) throw new Error("Already registered context: " + context.name + ".");
         else {
           contexts.store(context.name, context);
           context.on("activate", self.contextChanged, self);
           context.on("deactivate", self.contextChanged, self);
         }
       });
-
       // Initialize relations.
       if (_.isArray(options.relations) && options.relations.length > 0) {
         /*_.each(options.relations, function(relation) {
@@ -325,9 +280,7 @@
             relations.store(contextName, relation); 
         });*/
       }
-
       this.on("recompose", this.recompose, this);
-
       this.options = options;
       this.contexts = contexts;
       this.relations = relations;
@@ -341,14 +294,10 @@
   // Helpers
   // -------
 
-  var log = function(line) {
-    history.push(line);
-  };
+  var log = function(line) { history.push(line); };
 
   // For debug reasons.
-  root.showHistory = function() {
-    console.log(history.join("\n"));
-  };
+  root.showHistory = function() { console.log(history.join("\n")); };
 
   function Dictionary(startValues) {
     this.values = _.clone(startValues) || {};
