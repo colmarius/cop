@@ -225,23 +225,22 @@
     },
 
     objectsToRecompose: function(contexts) {
-      // 1. Look into contexts.toActivate and contexts.toDeactivate
-      // and return records of those objects.
-
       var results = [];
 
-      function addToResults(context, adaptation, forcedInsertion) {
+      function addToResults(context, adaptation, addTraits) {
+          var addTraits = addTraits || false;
           var found = false;
+
           _.each(results, function(result) {
             if (result.object == adaptation.object) {
               found = true;
-              if (forcedInsertion) {
+              if (addTraits) {
                 result.traits.push(adaptation.trait);
                 result.contexts.push(context);
               }
             }
           });
-          if (!found && forcedInsertion) 
+          if (!found && addTraits) 
             results.push({
               object:   adaptation.object,
               traits:   [adaptation.trait],
@@ -255,7 +254,8 @@
             });
       }
 
-      log("1. Look into contexts.toActivate adapted objects.");
+      log("1. Look into contexts.toActivate adapted objects, " +
+          "and add those objects with traits.");
       _.each(contexts.toActivate, function(context) {
         _.each(context.adaptations, function(adaptation) {
           addToResults(context, adaptation, true);
@@ -263,7 +263,8 @@
       });
       console.log("results (1): ", results);
 
-      log("2. Look into contexts.toDeactivate adapted objects.");
+      log("2. Look into contexts.toDeactivate adapted objects, " +
+          "and add only the objects.");
       _.each(contexts.toDeactivate, function(context) {
         _.each(context.adaptations, function(adaptation) {
           addToResults(context, adaptation);
@@ -271,25 +272,20 @@
       });
       console.log("results (2): ", results);
 
-      log("3. Look into contexts.active and add only the " +
-          "adapted objects with empty traits and contexts.");
-      _.each(contexts.active, function(context) {
-        _.each(context.adaptations, function(adaptation) {
-          addToResults(context, adaptation, false);
+      log("3. Look into adapted objects in results, " +
+        "and for those objects add active.contexts traits.");
+      _.each(results, function(result) {
+        _.each(contexts.active, function(activeContext) {
+          var adaptation = activeContext.getAdaptation(result.object);
+          if (adaptation) {
+            result.traits.push(adaptation.trait);
+            result.contexts.push(activeContext);
+          }
         });
       });
-
-
       console.log("results (3): ", results);
 
-
-      // 2. Create records for objects like this:
-      /*
-      recordObject = {
-        object: reference,
-        traits: [],
-        contexts: []
-      }*/    
+      return results;
     },
 
     _configure: function(options) {
