@@ -196,10 +196,12 @@
     },
 
     resolveDependencies: function(contexts) {
-      // 1. Look how relations impact on contexts to (de) activate.
-      // 2. contexts.toActivate = contexts.toActivate - contexts.active 
-      //      - contexts.toDeactivate
-      // 3. contexts.toDeactivate = contexts.toDeactivate
+      log("Resolving context dependencies started:");
+      console.log("Contexts before solving dependencies: ", contexts);
+      contexts.toActivate = _.difference(contexts.toActivate, contexts.active, contexts.toDeactivate);
+      // TODO: Look how relations impact on contexts to (de) activate.
+      console.log("Contexts after solving dependencies: ", contexts);
+      log("Resolving context dependencies ended!");
       return contexts;
     },
 
