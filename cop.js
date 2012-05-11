@@ -264,21 +264,6 @@
       // Initialize relations.
       if (_.isArray(options.relations) && options.relations.length > 0) {
         log("TODO: initialize context relations.");
-        /*_.each(options.relations, function(relation) {
-          var contextName = relation.context.name;
-
-          if (!contextName)
-            throw new Error("Unknown relation: " + relation + ".");
-
-          if (!contexts.contains(contextName))
-            throw new Error("Unregistered context '" + contextName + "." );
-
-          if (relations.contains(contextName))
-            throw new Error("Relation exists for context: " + contextName + ".");
-          else
-            // todo: checks on relation object
-            relations.store(contextName, relation); 
-        });*/
       }
       this.on("recompose", this.recompose, this);
       this.options = options;
