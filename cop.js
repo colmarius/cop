@@ -28,8 +28,7 @@
   var _ = root._;
   if (!_ && (typeof require !== 'undefined')) 
     _ = require('underscore');
-
-  // Require Backbone, if we're on the server, and it's not already present.
+ // Require Backbone, if we're on the server, and it's not already present.
   var Backbone = root.Backbone;
   if (!Backbone && (typeof require !== 'undefined'))
     Backbone = require('backbone');
@@ -196,8 +195,8 @@
     objectsToRecompose: function(contexts) {
       var results = [];
       function addToResults(context, adaptation, addTraits) {
-          var addTraits = addTraits || false;
           var found = false;
+          addTraits = addTraits || false;
           _.each(results, function(result) {
             if (result.object == adaptation.object) {
               found = true;
@@ -264,6 +263,7 @@
       });
       // Initialize relations.
       if (_.isArray(options.relations) && options.relations.length > 0) {
+        log("TODO: initialize context relations.");
         /*_.each(options.relations, function(relation) {
           var contextName = relation.context.name;
 
