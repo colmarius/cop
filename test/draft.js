@@ -1,5 +1,5 @@
 var batteryLevel = 10;
-var connectedToInternet = false;
+var connectedToInternet = true;
 
 var MYAPP = {
   initScreen: function() {
