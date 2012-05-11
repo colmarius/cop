@@ -7,28 +7,39 @@ var MYAPP = {
   }
 };
 
-var batteryLow = new Cop.Context({
-	name: 'batteryLow',
-  initialize: function() {
-    if (batteryLevel <= 30)
-      this.activate();
-
-  // Real world example (using Phonegap API):
-  // window.addEventListener("batterylow", onBatteryLow, false);
-  // function onBatteryLow(info) {
-  //   if (info.level <= 30)
-  //     this.activate();
-  //   else
-  //     this.deactivate();
-  // }
-  }
-});
-
 var offline = new Cop.Context({
   name: 'offline',
   initialize: function() {
-    if (connectedToInternet == false)
-      this.activate();
+    if (connectedToInternet == false) this.activate();
+  }
+});
+
+var batteryLow = new Cop.Context({
+	name: 'batteryLow',
+  initialize: function() {
+    if (batteryLevel <= 30) this.activate();
+  }
+});
+
+// Real world example (using Phonegap API):
+// var batteryLow = new Cop.Context({
+//   name: 'batteryLow',
+//   initialize: function() {
+//     window.addEventListener("batterylow", onBatteryLow, false);
+//     function onBatteryLow(info) {
+//       if (info.level <= 30) this.activate();
+//       else this.deactivate();
+//     }
+//   }
+// });
+
+var cm = new Cop.ContextManager({
+  contexts: [batteryLow, offline],
+  relations: {
+    exclusions: [[batteryLow, offline]],
+    inclusions: [],
+    suggestions: [],
+    requirements: []
   }
 });
 
@@ -44,16 +55,6 @@ offline.setAdaptation(MYAPP, Trait({
     console.log("MYAPP running with no internet connection.");
   }
 }));
-
-var cm = new Cop.ContextManager({
-  contexts: [batteryLow, offline],
-  relations: {
-    exclusions: [[batteryLow, offline]],
-    inclusions: [],
-    suggestions: [],
-    requirements: []
-  }
-});
 
 // cm.resolveConflict({
 //   object: MYAPP,
