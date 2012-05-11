@@ -101,6 +101,11 @@
 
   _.extend(Cop.Composer.prototype, {
     
+    // Deletes object own properties.    
+    empty: function(object) {
+
+    },
+
     // Return a shallow copy of object's own porperties.
     clone: function(object) {
 
