@@ -185,6 +185,7 @@
         this.recomposing = true;
 
         // TODO: recomposition logic
+        log("Contexts active: [" + _.pluck(contexts.active, 'name') + "], to activate: [" + _.pluck(contexts.toActivate, 'name') + "], to deactivate: [" + _.pluck(contexts.toDeactivate, 'name') + "].");
         console.log("Contexts: ", contexts);
         contexts = this.resolveDependencies(contexts);
         var objects = this.objectsToRecompose(contexts);
@@ -196,6 +197,7 @@
         console.log("ContextManager: ", this);
         this.recomposing = false;
         log("Recomposition Ended!");
+        log("Contexts active: [" + _.pluck(contexts.active, 'name') + "], to activate: [" + _.pluck(contexts.toActivate, 'name') + "], to deactivate: [" + _.pluck(contexts.toDeactivate, 'name') + "].");
       }
       else log("ALREADY RECOMPOSING CONTEXTS.");
     },
