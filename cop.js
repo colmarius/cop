@@ -152,17 +152,17 @@
     },
 
     onObjectAdapted: function(object) {
-      var adaptedObject = _.find(this.adaptedObjects, function(adapted){
-        return adapted.object === object;
+      var originalObject = _.find(this.originalObjects, function(original){
+        return original.object === object;
       });
-      if (!adaptedObject) {
-        this.adaptedObjects.push({
-          object: object,
-          clone: _.clone(object)
+      if (!originalObject) {
+        this.originalObjects.push({
+          object:   object,
+          original: _.clone(object)
         });
         log("Adapting new object: " + object + ".");
       }
-      else log("Object already adapted: " + object + ".");
+      else log("Object already adapted: " + object + ". ");
     },
 
     onContextChanged: function(context) {
@@ -186,9 +186,13 @@
 
         // TODO: recomposition logic
         log("Contexts active: [" + _.pluck(contexts.active, 'name') + "], to activate: [" + _.pluck(contexts.toActivate, 'name') + "], to deactivate: [" + _.pluck(contexts.toDeactivate, 'name') + "].");
-        console.log("Contexts: ", contexts);
         contexts = this.resolveDependencies(contexts);
-        var objects = this.objectsToRecompose(contexts);
+        console.log("Contexts: ", contexts);
+        var adaptations = this.objectsToRecompose(contexts);
+        console.log("Adaptations: ", adaptations);
+        this.compose(adaptations);
+        //this.inspect(adaptations);
+        //this.deploy(adaptations);
         // ...
 
         this.contexts.active       = _.difference(_.union(contexts.active, contexts.toActivate), contexts.toDeactivate);
@@ -204,10 +208,8 @@
 
     resolveDependencies: function(contexts) {
       log("Resolving context dependencies started:");
-      console.log("Contexts before solving dependencies: ", contexts);
       contexts.toActivate = _.difference(contexts.toActivate, contexts.active, contexts.toDeactivate);
       // TODO: Look how relations impact on contexts to (de) activate.
-      console.log("Contexts after solving dependencies: ", contexts);
       log("Resolving context dependencies ended!");
       return contexts;
     },
@@ -245,15 +247,13 @@
           addToResults(context, adaptation, true);
         });
       });
-      console.log("results (1): ", results);
       log("2. Look into contexts.toDeactivate adapted objects, and add only the objects.");
       _.each(contexts.toDeactivate, function(context) {
         _.each(context.adaptations, function(adaptation) {
           addToResults(context, adaptation);
         });
       });
-      console.log("results (2): ", results);
-      log("3. Look into objects in results, and for those objects add active.contexts traits.");
+      log("3. Look into objects in results, and for those objects add traits from active.contexts.");
       _.each(results, function(result) {
         _.each(contexts.active, function(activeContext) {
           var adaptation = activeContext.getAdaptation(result.object);
@@ -263,8 +263,24 @@
           }
         });
       });
-      console.log("results (3): ", results);
+      log("4. For each object in results, add clone of the original object.");
+      var originalObjects = this.originalObjects;
+      _.each(results, function(result) {
+        var originalObject =  _.find(originalObjects, function(original) {
+          return original.object === result.object;
+        });
+        result.originalObject = _.clone(originalObject.original);
+      });
       return results;
+    },
+
+    compose: function(adaptations) {
+      _.each(adaptations, function(adaptation){
+        // TODO: trait composition
+        // composedTrait = Trait.compose(adaptation.traits);
+        // hasConflicts(composedTrait) -> mark as conflicting
+        // composedObject = Object.create(adaptation.originalObject, composedTrait); 
+      });
     },
 
     _configure: function(options) {
@@ -295,7 +311,7 @@
         toActivate:   [],
         toDeactivate: []
       };
-      this.adaptedObjects = [];
+      this.originalObjects = [];
     }
 
   });
