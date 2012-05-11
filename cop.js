@@ -103,7 +103,10 @@
     
     // Deletes object own properties.    
     empty: function(object) {
-
+      _.keys(object, function(name) {
+        if (_.has(object, name))
+          delete object[name];
+      });
     },
 
     // Return a shallow copy of object's own porperties.
@@ -119,7 +122,7 @@
     // No return value: 
     // object will have same properties as fromObject. 
     restore: function(object, fromObject) {
-
+      _.extend(object, fromObject);
     }
 
   });
@@ -292,6 +295,11 @@
     },
 
     deploy: function(adaptations) {
+      var composer = this.composer;
+      _.each(adaptations, function(adaptation){
+        composer.empty(adaptation.object);
+        composer.restore(adaptation.object, adaptation.composedObject);
+      });
     },
 
     _configure: function(options) {
@@ -323,6 +331,7 @@
         toDeactivate: []
       };
       this.originalObjects = [];
+      this.composer = new Cop.Composer();
     }
 
   });
