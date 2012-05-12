@@ -85,7 +85,7 @@
       this.active = false;
       this.adaptations = [];
       if (options.initialize) this.initialize = options.initialize;
-      if (options.destroy)    this.destroy = options.destroy;
+      if (options.destroy)    this.destroy    = options.destroy;
     }
 
   });
@@ -253,8 +253,10 @@
           addToResults(context, adaptation);
         });
       });
-      log("3. Look into objects in results, and for those objects add traits from active.contexts.");
+      log("3. Look into objects in results, and for those objects add traits from active.contexts and a clone of the original (unadapted) object.");
+      var originalObjects = this.originalObjects;
       _.each(results, function(result) {
+        // First, add to result record the traits from active.contexts if any.
         _.each(contexts.active, function(activeContext) {
           var adaptation = activeContext.getAdaptation(result.object);
           if (adaptation) {
@@ -262,11 +264,8 @@
             result.contexts.push(activeContext);
           }
         });
-      });
-      log("4. For each object in results, add clone of the original object.");
-      var originalObjects = this.originalObjects;
-      _.each(results, function(result) {
-        var originalObject =  _.find(originalObjects, function(original) {
+        // Second, add to result record a clone of the original object behavior.
+        var originalObject = _.find(originalObjects, function(original) {
           return original.object === result.object;
         });
         result.originalObject = _.clone(originalObject.original);
