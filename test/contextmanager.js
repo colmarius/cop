@@ -19,14 +19,15 @@ $(document).ready(function() {
       relations: []
     });
 
-		ok(cm.contexts, "should have contexts");
-    ok(cm.contexts.contains(this.a.name), "should have registered context a");
-    ok(cm.contexts.contains(this.b.name), "should have registered context b");
-    ok(cm.contexts.contains(this.c.name), "should have registered context c");
+		ok(cm.contexts, "should have contexts container");
+    ok(cm.contexts.registered, "should have registered contexts");
+    ok(cm.contexts.registered.contains(this.a.name), "should have registered context a");
+    ok(cm.contexts.registered.contains(this.b.name), "should have registered context b");
+    ok(cm.contexts.registered.contains(this.c.name), "should have registered context c");
 		ok(cm.relations, "should have relations");
-		ok(cm.contextsActive, "should have active contexts");
-		ok(cm.contextsToActivate, "should have contexts to activate");
-		ok(cm.contextsToDeactivate, "should have contexts to deactivate");
+		equal(cm.contexts.active.length, 0, "should have zero active contexts");
+		equal(cm.contexts.toActivate.length, 0, "should have zero contexts to activate");
+		equal(cm.contexts.toDeactivate.length, 0, "should have zero contexts to deactivate");
 
     try {
       cm = new Cop.ContextManager({
