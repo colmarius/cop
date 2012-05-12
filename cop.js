@@ -184,13 +184,13 @@
 
     recompose: function(contexts) {
       if (!this.recomposing) {
-        log("Recomposition Started:");
+        log("Contexts Recomposition Started:");
         this.recomposing = true;
         // TODO: recomposition logic
         log("Contexts active: [" + _.pluck(contexts.active, 'name') + "], to activate: [" + _.pluck(contexts.toActivate, 'name') + "], to deactivate: [" + _.pluck(contexts.toDeactivate, 'name') + "].");
         contexts = this.resolveDependencies(contexts);
         console.log("Contexts: ", contexts);
-        var adaptations = this.adaptationsToRecompose(contexts);
+        var adaptations = this.adaptationsToCompose(contexts);
         this.compose(adaptations);
         console.log("Composed adaptations: ", adaptations);
         this.deploy(adaptations);
@@ -200,7 +200,7 @@
         this.contexts.toDeactivate = [];
         console.log("ContextManager: ", this);
         this.recomposing = false;
-        log("Recomposition Ended!");
+        log("Contexts Recomposition Ended!");
         log("Contexts active: [" + _.pluck(contexts.active, 'name') + "], to activate: [" + _.pluck(contexts.toActivate, 'name') + "], to deactivate: [" + _.pluck(contexts.toDeactivate, 'name') + "].");
       }
       else log("ALREADY RECOMPOSING CONTEXTS.");
@@ -214,7 +214,7 @@
       return contexts;
     },
 
-    adaptationsToRecompose: function(contexts) {
+    adaptationsToCompose: function(contexts) {
       var results = [];
       function addToResults(context, adaptation, addTraits) {
           var found = false;
@@ -241,6 +241,7 @@
               contexts: []
             });
       }
+      log("Computing adaptations to compose started:");
       log("1. Look into contexts.toActivate adapted objects, and add those objects with traits.");
       _.each(contexts.toActivate, function(context) {
         _.each(context.adaptations, function(adaptation) {
@@ -253,7 +254,7 @@
           addToResults(context, adaptation);
         });
       });
-      log("3. Look into objects in results, and for those objects add traits from active.contexts and a clone of the original (unadapted) object.");
+      log("3. Look into objects in results, and add traits from active.contexts and a clone of the original (unadapted) object.");
       var originalObjects = this.originalObjects;
       _.each(results, function(result) {
         // First, add to result record the traits from active.contexts if any.
@@ -270,6 +271,7 @@
         });
         result.originalObject = _.clone(originalObject.original);
       });
+      log("Computing adaptations to compose ended!");
       return results;
     },
 
@@ -283,6 +285,7 @@
           adaptation.errorMessage = err.message;
         }
       }
+      log("Composing adaptations started:");
       _.each(adaptations, function(adaptation){
         adaptation.composedTrait = Trait.compose.apply(null, adaptation.traits);
         checkConflicts(adaptation);
@@ -291,6 +294,7 @@
         else
           adaptation.composedObject = Object.create(adaptation.originalObject, adaptation.composedTrait);
       });
+      log("Composing adaptations ended!");
     },
 
     deploy: function(adaptations) {
