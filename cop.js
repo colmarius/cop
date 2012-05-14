@@ -90,43 +90,6 @@
 
   });
 
-  // Cop.Composer
-  // ------------
-  //
-  // Handles object structure modifications and knows how to compose traits.
-
-  Cop.Composer = function() {
-
-  };
-
-  _.extend(Cop.Composer.prototype, {
-    
-    // Deletes object own properties.    
-    empty: function(object) {
-      _.keys(object, function(name) {
-        if (_.has(object, name))
-          delete object[name];
-      });
-    },
-
-    // Return a shallow copy of object's own porperties.
-    clone: function(object) {
-
-    },
-
-    // Return a new object that has the trait.
-    acquire: function(object, trait) {
-
-    },
-
-    // No return value: 
-    // object will have same properties as fromObject. 
-    restore: function(object, fromObject) {
-      _.extend(object, fromObject);
-    }
-
-  });
-
   // Cop.ContextManager
   // ------------------
   
@@ -182,23 +145,69 @@
       else log("Context manager not running yet. Context " + context.name + " not activated.");
     },
 
+    _configure: function(options) {
+      var self = this;
+      var contexts  = new Dictionary();
+      var relations = new Dictionary();
+      var composer  = new Cop.Composer({contextManager: this});
+      // Initialize contexts.
+      if (!_.isArray(options.contexts) || options.contexts.length == 0) throw new Error("Cannot create context manager without contexts.");
+      _.each(options.contexts, function(context) {
+        if (contexts.contains(context.name)) throw new Error("Already registered context: " + context.name + ".");
+        else {
+          contexts.store(context.name, context);
+          context.on("activate",   self.onContextChanged, self);
+          context.on("deactivate", self.onContextChanged, self);
+          context.on("adapt",      self.onObjectAdapted,  self);
+        }
+      });
+      // Initialize relations.
+      if (_.isArray(options.relations) && options.relations.length > 0) {
+        log("TODO: initialize context relations.");
+      }
+      // Composer handles objects behavior recomposition after a context change.
+      this.on("recompose", composer.recompose, composer);
+      // Context manager attributes.
+      this.options = options;
+      this.relations = relations;
+      this.contexts = {
+        registered:   contexts,
+        active:       [],
+        toActivate:   [],
+        toDeactivate: []
+      };
+      this.composer = composer;
+      this.originalObjects = [];
+    }
+
+  });
+
+  // Cop.Composer
+  // ------------
+  //
+  // Handles object structure modifications and knows how to compose traits.
+
+  Cop.Composer = function(options) {
+    this._configure(options || {});
+  };
+
+  _.extend(Cop.Composer.prototype, {
+    
     recompose: function(contexts) {
       if (!this.recomposing) {
         log("Contexts Recomposition Started:");
         this.recomposing = true;
-        // TODO: recomposition logic
         log("Contexts active: [" + _.pluck(contexts.active, 'name') + "], to activate: [" + _.pluck(contexts.toActivate, 'name') + "], to deactivate: [" + _.pluck(contexts.toDeactivate, 'name') + "].");
         contexts = this.resolveDependencies(contexts);
         console.log("Contexts: ", contexts);
         var adaptations = this.adaptationsToCompose(contexts);
         this.compose(adaptations);
         console.log("Composed adaptations: ", adaptations);
-        this.deploy(adaptations);
-        // ...
-        this.contexts.active       = _.difference(_.union(contexts.active, contexts.toActivate), contexts.toDeactivate);
-        this.contexts.toActivate   = [];
-        this.contexts.toDeactivate = [];
-        console.log("ContextManager: ", this);
+        this.install(adaptations);
+        this.contextManager.contexts.active       = _.difference(_.union(contexts.active, contexts.toActivate), contexts.toDeactivate);
+        this.contextManager.contexts.toActivate   = [];
+        this.contextManager.contexts.toDeactivate = [];
+        console.log("ContextManager: ", this.contextManager);
         this.recomposing = false;
         log("Contexts Recomposition Ended!");
         log("Contexts active: [" + _.pluck(contexts.active, 'name') + "], to activate: [" + _.pluck(contexts.toActivate, 'name') + "], to deactivate: [" + _.pluck(contexts.toDeactivate, 'name') + "].");
@@ -217,29 +226,29 @@
     adaptationsToCompose: function(contexts) {
       var results = [];
       function addToResults(context, adaptation, addTraits) {
-          var found = false;
-          addTraits || (addTraits = false);
-          _.each(results, function(result) {
-            if (result.object == adaptation.object) {
-              found = true;
-              if (addTraits) {
-                result.traits.push(adaptation.trait);
-                result.contexts.push(context);
-              }
+        var found = false;
+        addTraits || (addTraits = false);
+        _.each(results, function(result) {
+          if (result.object == adaptation.object) {
+            found = true;
+            if (addTraits) {
+              result.traits.push(adaptation.trait);
+              result.contexts.push(context);
             }
+          }
+        });
+        if (!found && addTraits) 
+          results.push({
+            object:   adaptation.object,
+            traits:   [adaptation.trait],
+            contexts: [context]
           });
-          if (!found && addTraits) 
-            results.push({
-              object:   adaptation.object,
-              traits:   [adaptation.trait],
-              contexts: [context]
-            });
-          else if (!found)
-            results.push({
-              object:   adaptation.object,
-              traits:   [],
-              contexts: []
-            });
+        else if (!found)
+          results.push({
+            object:   adaptation.object,
+            traits:   [],
+            contexts: []
+          });
       }
       log("Computing adaptations to compose started:");
       log("1. Look into contexts.toActivate adapted objects, and add those objects with traits.");
@@ -255,7 +264,7 @@
         });
       });
       log("3. Look into objects in results, and add traits from active.contexts and a clone of the original (unadapted) object.");
-      var originalObjects = this.originalObjects;
+      var originalObjects = this.contextManager.originalObjects;
       _.each(results, function(result) {
         // First, add to result record the traits from active.contexts if any.
         _.each(contexts.active, function(activeContext) {
@@ -297,44 +306,24 @@
       log("Composing adaptations ended!");
     },
 
-    deploy: function(adaptations) {
-      var composer = this.composer;
-      _.each(adaptations, function(adaptation){
-        composer.empty(adaptation.object);
-        composer.restore(adaptation.object, adaptation.composedObject);
+    install: function(adaptations) {
+      function empty(object) {
+        _.keys(object, function(name) { 
+          if (_.has(object, name)) delete object[name];
+        });
+      }
+      function restore(object, fromObject) {
+        empty(object);
+        _.extend(object, fromObject);
+      }
+      var self = this;
+      _.each(adaptations, function(adaptation) {
+        restore(adaptation.object, adaptation.composedObject);
       });
     },
 
     _configure: function(options) {
-      var self = this;
-      var contexts = new Dictionary();
-      var relations = new Dictionary();
-      // Initialize contexts.
-      if (!_.isArray(options.contexts)) throw new Error("Cannot create context manager without contexts.");
-      _.each(options.contexts, function(context) {
-        if (contexts.contains(context.name)) throw new Error("Already registered context: " + context.name + ".");
-        else {
-          contexts.store(context.name, context);
-          context.on("activate",   self.onContextChanged, self);
-          context.on("deactivate", self.onContextChanged, self);
-          context.on("adapt",      self.onObjectAdapted,  self);
-        }
-      });
-      // Initialize relations.
-      if (_.isArray(options.relations) && options.relations.length > 0) {
-        log("TODO: initialize context relations.");
-      }
-      this.on("recompose", this.recompose, this);
-      this.options = options;
-      this.relations = relations;
-      this.contexts = {
-        registered:   contexts,
-        active:       [],
-        toActivate:   [],
-        toDeactivate: []
-      };
-      this.originalObjects = [];
-      this.composer = new Cop.Composer();
+      this.contextManager = options.contextManager;
     }
 
   });
@@ -347,6 +336,7 @@
   // For debug reasons.
   root.showHistory = function() { console.log(history.join("\n")); };
 
+  // Dictionary for storing key-value pairs.
   function Dictionary(startValues) {
     this.values = _.clone(startValues) || {};
   }
