@@ -102,9 +102,9 @@
     start: function() {
       log("Context manager is preparing to start up.");
       this.contexts.registered.each(function(context) {
-        log("Initializing context " + context.name + ".");
+        log("Initializing context '" + context.name + "'.");
         context.initialize();
-        log("Context " + context.name + " is now initialized.");
+        log("Context '" + context.name + "' is now initialized.");
       });
       this.running = true;
       log("Context manager is running.");
@@ -121,20 +121,20 @@
           object:   object,
           original: _.clone(object)
         });
-        log("Adapting new object: " + object + ".");
+        log("Adapting new object: ", object, ".");
       }
-      else log("Object already adapted: " + object + ". ");
+      else log("Object already adapted: ", object, ". ");
     },
 
     _onContextChange: function(context) {
-      log("Context " + context.name + " triggered " + (context.active ? "activate" : "deactivate"));
+      log("Context '" + context.name + "' triggered " + (context.active ? "activate" : "deactivate"));
       if (context.active) {
         this.contexts.toActivate.push(context);
-        log("Context " + context.name + " marked for activation.");
+        log("Context '" + context.name + "' marked for activation.");
       } 
       else {
         this.contexts.toDeactivate.push(context);
-        log("Context " + context.name + " marked for deactivation.");
+        log("Context '" + context.name + "' marked for deactivation.");
       }
       if (this.running) this.trigger("recompose:start");
       else log("Context manager not running: context '" + context.name + "' not activated yet.");
@@ -215,18 +215,17 @@
       if (!this.recomposing) {
         this.recomposing = true;
         contexts = this.resolveDependencies(contexts, relations);
-        console.log("Contexts with resolved dependencies: ", contexts);
+        log("Contexts with resolved dependencies: ", contexts);
         adaptations = this.getAdaptations(contexts);
         this.compose(adaptations);
-        console.log("Composed adaptations: ", adaptations);
+        log("Composed adaptations: ", adaptations);
         conflicts = _.filter(adaptations, function(adaptation) {
           return adaptation.hasConflict;
         });
         if (conflicts.length > 0) {
-          log("Conflicts detected!");
-          console.log("Conflicts detected: ", conflicts);
+          log("Conflicts detected: ", conflicts);
           _.each(conflicts, function(adaptation) {
-            console.log("Conflicting adaptations: ", adaptation);
+            log("Conflicting adaptations: ", adaptation);
           });
         }
         else {          
@@ -237,8 +236,8 @@
             toActivate   : [],
             toDeactivate : []
           };
-          console.log("ContextManager: ", this.contextManager);
-          console.log("Recomposed contexts: ", contexts);
+          log("ContextManager: ", this.contextManager);
+          log("Recomposed contexts: ", contexts);
           this.contextManager.trigger("recompose:end", contexts);
         }
         this.recomposing = false;
@@ -281,7 +280,7 @@
             contexts: []
           });
       }
-      log("Computing adaptations to compose started:");
+      log("Adaptations to compose started:");
       log("1. Look into contexts.toActivate adapted objects, and add those objects with traits.");
       _.each(contexts.toActivate, function(context) {
         _.each(context.adaptations, function(adaptation) {
@@ -311,7 +310,7 @@
         });
         result.originalObject = _.clone(originalObject.original);
       });
-      log("Computing adaptations to compose ended!");
+      log("Adaptations to compose ended!");
       return results;
     },
 
@@ -366,9 +365,14 @@
   // For debug reasons.
   var history = Cop.ContextManager.history = []; 
 
-  var log = function(line) { history.push(line); };
+  var log = function() { history.push(_.toArray(arguments)); };
 
-  root.showHistory = function() { console.log(history.join("\n")); };
+  root.showHistory = function() { 
+    _.each(history, function(lineArray) { 
+      //lineArray = lineArray.join(" ");
+      console.log(lineArray); 
+    });
+  };
 
   // Dictionary for storing key-value pairs.
   function Dictionary(startValues) {
