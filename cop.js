@@ -175,7 +175,7 @@
       if (_.isArray(options.relations) && options.relations.length > 0) {
         log("TODO: initialize context relations.");
       }
-      // Handle recompose:start, recompose:end events.
+      // Context manager handles context recomposition.
       this.on("recompose:start", this._onRecomposeStart, this);
       this.on("recompose:end",   this._onRecomposeEnd,   this);
       // Context manager attributes.
@@ -196,7 +196,10 @@
   // Cop.Composer
   // ------------
   //
-  // Handles object structure modifications and knows how to compose traits.
+  // The context manager delegates the composer to combine adaptations 
+  // for the currently active contexts.
+  // Composer knows how to apply object structure modifications. 
+  // He knows how to compose traits and how to make objects acquire them.
 
   Cop.Composer = function(options) {
     this._configure(options || {});
@@ -217,7 +220,7 @@
         this.compose(adaptations);
         console.log("Composed adaptations: ", adaptations);
         conflicts = _.filter(adaptations, function(adaptation) {
-          return adaptation.hasConflicts;
+          return adaptation.hasConflict;
         });
         if (conflicts.length > 0) {
           log("Conflicts detected!");
@@ -318,7 +321,7 @@
           Trait.create({}, adaptation.composedTrait);
         }
         catch (err) {
-          adaptation.hasConflicts = true;
+          adaptation.hasConflict  = true;
           adaptation.errorMessage = err.message;
         }
       }
@@ -327,7 +330,7 @@
         adaptation.composedTrait = Trait.compose.apply(null, adaptation.traits);
         checkConflicts(adaptation);
         if (adaptation.hasConflicts)
-          log("Composed trait has conflicts: " + adaptation.errorMessage);
+          log("Detected conflict on composed trait: " + adaptation.errorMessage);
         else
           adaptation.composedObject = Object.create(adaptation.originalObject, adaptation.composedTrait);
       });
