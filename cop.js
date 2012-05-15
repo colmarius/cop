@@ -329,7 +329,7 @@
       _.each(adaptations, function(adaptation){
         adaptation.composedTrait = Trait.compose.apply(null, adaptation.traits);
         checkConflicts(adaptation);
-        if (adaptation.hasConflicts)
+        if (adaptation.hasConflict)
           log("Detected conflict on composed trait: " + adaptation.errorMessage);
         else
           adaptation.composedObject = Object.create(adaptation.originalObject, adaptation.composedTrait);
