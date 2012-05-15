@@ -392,7 +392,6 @@
     },
 
     _install: function(adaptations) {
-      log("Install adaptations started: ");
       function restore(object, fromObject) {
         _.each(_.keys(object), function(key) { delete object[key]; });
         _.extend(object, fromObject);
@@ -400,7 +399,6 @@
       _.each(adaptations, function(adaptation) {
         restore(adaptation.object, adaptation.composedObject);
       });
-      log("Install adaptations ended!");
     },
 
     _configure: function(options) {

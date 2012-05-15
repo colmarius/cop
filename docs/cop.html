@@ -335,7 +335,6 @@ He knows how to compose traits and how to make objects acquire them.</p>        
     <span class="p">},</span>
 
     <span class="nx">_install</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">adaptations</span><span class="p">)</span> <span class="p">{</span>
-      <span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Install adaptations started: &quot;</span><span class="p">);</span>
       <span class="kd">function</span> <span class="nx">restore</span><span class="p">(</span><span class="nx">object</span><span class="p">,</span> <span class="nx">fromObject</span><span class="p">)</span> <span class="p">{</span>
         <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">object</span><span class="p">),</span> <span class="kd">function</span><span class="p">(</span><span class="nx">key</span><span class="p">)</span> <span class="p">{</span> <span class="k">delete</span> <span class="nx">object</span><span class="p">[</span><span class="nx">key</span><span class="p">];</span> <span class="p">});</span>
         <span class="nx">_</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span><span class="nx">object</span><span class="p">,</span> <span class="nx">fromObject</span><span class="p">);</span>
@@ -343,7 +342,6 @@ He knows how to compose traits and how to make objects acquire them.</p>        
       <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">adaptations</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">adaptation</span><span class="p">)</span> <span class="p">{</span>
         <span class="nx">restore</span><span class="p">(</span><span class="nx">adaptation</span><span class="p">.</span><span class="nx">object</span><span class="p">,</span> <span class="nx">adaptation</span><span class="p">.</span><span class="nx">composedObject</span><span class="p">);</span>
       <span class="p">});</span>
-      <span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Install adaptations ended!&quot;</span><span class="p">);</span>
     <span class="p">},</span>
 
     <span class="nx">_configure</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
