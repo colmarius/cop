@@ -4,7 +4,7 @@ $(document).ready(function() {
 
   test("Context: creation", function() {
     var initializeFunc = function() {};
-    var destroyFunc = function() {};
+    var destroyFunc    = function() {};
 
     var context = new Cop.Context({
       name: 'foo',
@@ -27,10 +27,16 @@ $(document).ready(function() {
 
     try {
       new Cop.Context({});
-      ok(false, "an exception should have thrown trying to create a context with empty name");
+      ok(false, "an exception should have thrown trying to create a context with no name a second time");
     } catch (err) {
 			equal(err.message, "Context object must have a name.");
 		}
+    try {
+      new Cop.Context({name: ''});
+      ok(false, "an exception should have thrown trying to create a context with empty name");
+    } catch (err) {
+      equal(err.message, "Context object must have a name.");
+    }
   });
 
   test("Context: adapt", function() {
@@ -71,8 +77,8 @@ $(document).ready(function() {
 
   test("Context: getAdaptation", function() {
     var context = new Cop.Context({name: 'test'}),
-        object = {},
-        trait = new Trait({});
+        object  = {},
+        trait   = new Trait({});
 
     context.adapt(object, trait);
 
