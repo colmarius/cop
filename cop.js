@@ -231,53 +231,58 @@
 
   _.extend(Cop.Composer.prototype, {
     
-    recompose: function(options) { // TODO
-      var contexts    = options.contexts;
-      var relations   = options.relations;
+    recompose: function(options) {
+      var contexts  = options.contexts;
+      var relations = options.relations;
       var adaptations;
       var conflicts;
       if (!this.recomposing) {
         this.recomposing = true;
-        contexts = this.resolveDependencies(contexts, relations);
+        contexts = this._resolveDependencies(contexts, relations);
         log("Contexts with resolved dependencies: ", contexts);
-        adaptations = this.getAdaptations(contexts);
-        this.compose(adaptations);
+        adaptations = this._getAdaptations(contexts);
+        // TODO from here on ..
+        log("Uncomposed adaptations: ", adaptations);
+        this._compose(adaptations);
         log("Composed adaptations: ", adaptations);
         conflicts = _.filter(adaptations, function(adaptation) {
           return adaptation.hasConflict;
         });
         if (conflicts.length > 0) {
-          log("Conflicts detected: ", conflicts);
-          _.each(conflicts, function(adaptation) {
-            log("Conflicting adaptations: ", adaptation);
+          // Unresolved conflicts remain.
+          log("Unresolved conflicts: ", conflicts);
+          _.each(conflicts, function(conflict) {
+            log("Contexts ", _.pluck(conflict.contexts, 'name').join(","), " have unresolved conflict for object: ", conflict.object);
           });
+          // Restore contexts before reolving dependencies.
+          contexts = options.contexts;
         }
         else {          
           log("No conflicts detected.");
-          this.install(adaptations);
+          this._install(adaptations);
+          // Compute new contexts.
           contexts = {
             active       : _.difference(_.union(contexts.active, contexts.toActivate), contexts.toDeactivate),
             toActivate   : [],
             toDeactivate : []
           };
-          log("ContextManager: ", this.contextManager);
-          log("Recomposed contexts: ", contexts);
-          this.contextManager.trigger("recompose:end", contexts);
         }
+        this.contextManager.trigger("recompose:end", contexts);
         this.recomposing = false;
       }
       else log("ALREADY RECOMPOSING CONTEXTS.");
     },
 
-    resolveDependencies: function(contexts, relations) {
+    // TODO: Look how relations impact on contexts to (de) activate.
+    _resolveDependencies: function(contexts, relations) {
       log("Resolving context dependencies started:");
       contexts.toActivate = _.difference(contexts.toActivate, contexts.active, contexts.toDeactivate);
-      // TODO: Look how relations impact on contexts to (de) activate.
+      contexts.active = _.difference(contexts.active, contexts.toDeactivate);
       log("Resolving context dependencies ended!");
       return contexts;
     },
 
-    getAdaptations: function(contexts) { // TODO
+    _getAdaptations: function(contexts) {
       var results = [];
       function addToResults(context, adaptation, addTraits) {
         var found = false;
@@ -304,23 +309,23 @@
             contexts: []
           });
       }
-      log("Adaptations to compose started:");
-      log("1. Look into contexts.toActivate adapted objects, and add those objects with traits.");
+      log("Adaptations search started:");
+      log("1. For each object in 'contexts.toActivate' add object with traits.");
       _.each(contexts.toActivate, function(context) {
         _.each(context.adaptations, function(adaptation) {
           addToResults(context, adaptation, true);
         });
       });
-      log("2. Look into contexts.toDeactivate adapted objects, and add only the objects.");
+      log("2. For each object in 'contexts.toDeactivate' add object only.");
       _.each(contexts.toDeactivate, function(context) {
         _.each(context.adaptations, function(adaptation) {
           addToResults(context, adaptation);
         });
       });
-      log("3. Look into objects in results, and add traits from active.contexts and a clone of the original (unadapted) object.");
+      log("3. For each object in results add traits from 'active.contexts' and a clone of the original object from 'adaptedObjects'.");
       var originalObjects = this.contextManager.originalObjects;
       _.each(results, function(result) {
-        // First, add to result record the traits from active.contexts if any.
+        // First, add to `result` the traits from `active.contexts`.
         _.each(contexts.active, function(activeContext) {
           var adaptation = activeContext.getAdaptation(result.object);
           if (adaptation) {
@@ -328,52 +333,74 @@
             result.contexts.push(activeContext);
           }
         });
-        // Second, add to result record a clone of the original object behavior.
+        // Second, add to `result` a clone of the original object.
         var originalObject = _.find(originalObjects, function(original) {
           return original.object === result.object;
         });
         result.originalObject = _.clone(originalObject.original);
       });
-      log("Adaptations to compose ended!");
+      log("Adaptations search ended!");
       return results;
     },
 
-    compose: function(adaptations) { // TODO
+    _compose: function(adaptations) {
+      var cm = this.contextManager;
       function checkConflicts(adaptation) {
-        try{
+        try {
           Trait.create({}, adaptation.composedTrait);
         }
         catch (err) {
+          log("Adaptation has conflicts: ", adaptation);
           adaptation.hasConflict  = true;
           adaptation.errorMessage = err.message;
         }
       }
-      log("Composing adaptations started:");
-      _.each(adaptations, function(adaptation){
+      function resolve(adaptation) {
+        var name = cm._combinedName(adaptation.contexts);
+        var records = cm.resolvedTraits.lookup(name);
+        var record = _.find(records, function(record) {
+          return record.object === adaptation.object;
+        });
+        if (record) {
+          log("Resolving adaptation: ", adaptation, " with record: ", record);
+          var orderedTraits = [];
+          _.each(record.contexts, function(context){
+            // TODO order traits
+          });
+
+          var resolvedTrait = record.getResolvedTrait.apply(null, adaptation.traits);
+          adaptation.composedTrait = resolvedTrait;
+          delete adaptation.hasConflict;
+          delete adaptation.errorMessage;
+          adaptation.resolved = true;
+        }
+        else log("No resolved trait found for adaptation: ", adaptation);
+      }
+      log("Adaptations composition started:");
+      _.each(adaptations, function(adaptation) {
         adaptation.composedTrait = Trait.compose.apply(null, adaptation.traits);
         checkConflicts(adaptation);
-        if (adaptation.hasConflict)
-          log("Detected conflict on composed trait: " + adaptation.errorMessage);
+        if (adaptation.hasConflict) 
+          resolve(adaptation);
+        if (adaptation.hasConflict && !adaptation.resolved) {
+          log("No resolved trait provided for object: ", adaptation.object, " and contexts: ", adaptation.contexts);
+        } 
         else
           adaptation.composedObject = Object.create(adaptation.originalObject, adaptation.composedTrait);
       });
-      log("Composing adaptations ended!");
+      log("Adaptations composition ended!");
     },
 
-    install: function(adaptations) {
-      function empty(object) {
-        _.keys(object, function(name) { 
-          if (_.has(object, name)) delete object[name];
-        });
-      }
+    _install: function(adaptations) {
+      log("Install adaptations started: ");
       function restore(object, fromObject) {
-        empty(object);
+        _.each(_.keys(object), function(key) { delete object[key]; });
         _.extend(object, fromObject);
       }
-      var self = this;
       _.each(adaptations, function(adaptation) {
         restore(adaptation.object, adaptation.composedObject);
       });
+      log("Install adaptations ended!");
     },
 
     _configure: function(options) {
@@ -393,7 +420,7 @@
 
   root.showHistory = function() { 
     _.each(history, function(lineArray) { 
-      lineArray = lineArray.join(" ");
+      //lineArray = lineArray.join(" ");
       console.log(lineArray); 
     });
   };
