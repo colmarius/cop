@@ -112,6 +112,29 @@
       log("Context manager has started up.");
     },
 
+    resolveConflict: function(object, contexts, getResolvedTrait) {
+      var name = this._combinedName(contexts);
+      var records = this.resolvedTraits.lookup(name);
+      if (!records) {
+        records = [];
+        this.resolvedTraits.store(name, records);
+      }
+      var record = _.find(records, function(record) {
+        return record.object === object;
+      });
+      if (record) throw new Error("Object already has resolved trait for contexts: " + name + ".");
+      else
+        records.push({
+          object:   object,
+          contexts: contexts,
+          getResolvedTrait: getResolvedTrait
+        });
+    },
+
+    _combinedName: function(contexts) {
+      return _.pluck(contexts, 'name').sort().join(",");
+    },
+
     _onAdapt: function(object) {
       var originalObject = _.find(this.originalObjects, function(original){
         return original.object === object;
@@ -189,6 +212,7 @@
       this.relations = relations;
       this.composer = composer;
       this.originalObjects = [];
+      this.resolvedTraits = new Dictionary();
     }
 
   });
@@ -207,7 +231,7 @@
 
   _.extend(Cop.Composer.prototype, {
     
-    recompose: function(options) {
+    recompose: function(options) { // TODO
       var contexts    = options.contexts;
       var relations   = options.relations;
       var adaptations;
@@ -253,7 +277,7 @@
       return contexts;
     },
 
-    getAdaptations: function(contexts) {
+    getAdaptations: function(contexts) { // TODO
       var results = [];
       function addToResults(context, adaptation, addTraits) {
         var found = false;
@@ -314,7 +338,7 @@
       return results;
     },
 
-    compose: function(adaptations) {
+    compose: function(adaptations) { // TODO
       function checkConflicts(adaptation) {
         try{
           Trait.create({}, adaptation.composedTrait);

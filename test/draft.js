@@ -56,21 +56,19 @@ offline.adapt(MYAPP, Trait({
   }
 }));
 
-// cm.resolveConflict({
-//   object: MYAPP,
-//   contexts: [batteryLow, offline],
-//   getResolvedTrait: function(batteryLowT, offlineT) {
-//     var batteryLowAliased = Trait.resolve({initScreen: 'initScreenBatteryLow'}, batteryLowT);
-//     var offlineAliased = Trait.resolve({initScreen: 'initScreenOffline'}, offlineT);
-//     return Trait.compose(batteryLowAliased, offlineAliased, Trait{
-//       initScreen: function() {
-//         console.log("MYAPP running offline with battery low.");
-//         this.initScreenBatteryLow();
-//         this.initScreenOffline();
-//       }
-//     });
-//   }
-// });
+cm.resolveConflict(MYAPP, [batteryLow, offline], function(batteryLowT, offlineT) {
+  return Trait.compose(
+    Trait.resolve({initScreen: 'initScreenBatteryLow'}, batteryLowT), 
+    Trait.resolve({initScreen: 'initScreenOffline'}, offlineT),
+    Trait({
+      initScreen: function() {
+        console.log("MYAPP running 'offline' with 'battery low'.");
+        this.initScreenBatteryLow();
+        this.initScreenOffline();
+      }
+    })
+  );
+});
 
 cm.start(); // now contexts are initialized and objects are composed accordingly
 
