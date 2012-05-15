@@ -95,14 +95,9 @@
   
   Cop.ContextManager = function(options) {
     this._configure(options || {});
-    this.initialize.apply(this, arguments);
   };
 
-  var history = Cop.ContextManager.history = []; 
-
   _.extend(Cop.ContextManager.prototype, Backbone.Events, {
-
-    initialize: function() {},
 
     start: function() {
       log("Context manager is preparing to start up.");
@@ -113,7 +108,11 @@
       });
       this.running = true;
       log("Context manager is running.");
-      if (this.contexts.toActivate.length > 0) this.trigger("recompose", this.contexts);
+      if (this.contexts.toActivate.length > 0) 
+        this.trigger("recompose", {
+          contexts: this.contexts,
+          relations: this.relations
+        });
       log("Context manager has started up.");
     },
 
@@ -141,7 +140,11 @@
         this.contexts.toDeactivate.push(context);
         log("Context " + context.name + " marked for deactivation.");
       }
-      if (this.running) this.trigger("recompose", this.contexts);
+      if (this.running) 
+        this.trigger("recompose", {
+          contexts: this.contexts, 
+          relations: this.relations
+        });
       else log("Context manager not running yet. Context " + context.name + " not activated.");
     },
 
@@ -165,8 +168,6 @@
       if (_.isArray(options.relations) && options.relations.length > 0) {
         log("TODO: initialize context relations.");
       }
-      // Composer handles objects behavior recomposition after a context change.
-      this.on("recompose", composer.recompose, composer);
       // Context manager attributes.
       this.options = options;
       this.relations = relations;
@@ -193,21 +194,38 @@
 
   _.extend(Cop.Composer.prototype, {
     
-    recompose: function(contexts) {
+    recompose: function(options) {
+      var contexts    = options.contexts;
+      var relations   = options.relations;
+      var adaptations = options.adaptations;
       if (!this.recomposing) {
         log("Contexts Recomposition Started:");
         this.recomposing = true;
         log("Contexts active: [" + _.pluck(contexts.active, 'name') + "], to activate: [" + _.pluck(contexts.toActivate, 'name') + "], to deactivate: [" + _.pluck(contexts.toDeactivate, 'name') + "].");
-        contexts = this.resolveDependencies(contexts);
-        console.log("Contexts: ", contexts);
-        var adaptations = this.adaptationsToCompose(contexts);
+        contexts = this.resolveDependencies(contexts, relations);
+        console.log("Contexts with resolved dependencies: ", contexts);
+        adaptations = this.getAdaptations(contexts);
         this.compose(adaptations);
         console.log("Composed adaptations: ", adaptations);
-        this.install(adaptations);
-        this.contextManager.contexts.active       = _.difference(_.union(contexts.active, contexts.toActivate), contexts.toDeactivate);
-        this.contextManager.contexts.toActivate   = [];
-        this.contextManager.contexts.toDeactivate = [];
-        console.log("ContextManager: ", this.contextManager);
+        var conflicts = _.filter(adaptations, function(adaptation) {
+          return adaptation.hasConflicts;
+        });
+        if (conflicts.length > 0) {
+          log("Conflicts detected started:");
+          _.each(conflicts, function(adaptation) {
+            console.log("Conflicting adaptations: ", adaptation);
+          });
+          log("Conflicts detected ended!");
+        }
+        else {          
+          this.install(adaptations);
+          this.contextManager.contexts = {
+            active       : _.difference(_.union(contexts.active, contexts.toActivate), contexts.toDeactivate),
+            toActivate   : [],
+            toDeactivate : []
+          };
+          console.log("ContextManager: ", this.contextManager);
+        }
         this.recomposing = false;
         log("Contexts Recomposition Ended!");
         log("Contexts active: [" + _.pluck(contexts.active, 'name') + "], to activate: [" + _.pluck(contexts.toActivate, 'name') + "], to deactivate: [" + _.pluck(contexts.toDeactivate, 'name') + "].");
@@ -215,7 +233,7 @@
       else log("ALREADY RECOMPOSING CONTEXTS.");
     },
 
-    resolveDependencies: function(contexts) {
+    resolveDependencies: function(contexts, relations) {
       log("Resolving context dependencies started:");
       contexts.toActivate = _.difference(contexts.toActivate, contexts.active, contexts.toDeactivate);
       // TODO: Look how relations impact on contexts to (de) activate.
@@ -223,7 +241,7 @@
       return contexts;
     },
 
-    adaptationsToCompose: function(contexts) {
+    getAdaptations: function(contexts) {
       var results = [];
       function addToResults(context, adaptation, addTraits) {
         var found = false;
@@ -323,7 +341,10 @@
     },
 
     _configure: function(options) {
-      this.contextManager = options.contextManager;
+      if (!options.contextManager) throw new Error("Cannot create composer without a context manager.");
+      var contextManager = options.contextManager;
+      contextManager.on("recompose", this.recompose, this);
+      this.contextManager = contextManager;
     }
 
   });
@@ -331,9 +352,11 @@
   // Helpers
   // -------
 
+  // For debug reasons.
+  var history = Cop.ContextManager.history = []; 
+
   var log = function(line) { history.push(line); };
 
-  // For debug reasons.
   root.showHistory = function() { console.log(history.join("\n")); };
 
   // Dictionary for storing key-value pairs.
