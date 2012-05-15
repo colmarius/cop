@@ -4,8 +4,8 @@
 //     Cop library may be freely distributed under Apache 2.0 license.
 //     For all details and documention:
 //     (url)
-    
-(function(){
+(function() {
+  
   // Initial Setup
   // -------------
 
@@ -28,7 +28,8 @@
   var _ = root._;
   if (!_ && (typeof require !== 'undefined')) 
     _ = require('underscore');
- // Require Backbone, if we're on the server, and it's not already present.
+  
+  // Require Backbone, if we're on the server, and it's not already present.
   var Backbone = root.Backbone;
   if (!Backbone && (typeof require !== 'undefined'))
     Backbone = require('backbone');
@@ -40,11 +41,27 @@
 
   // Cop.Context
   // -----------
-  
-  Cop.Context = function(options) {
+
+  // A context object reifies the presence or absence of a possible 
+  // situation at runtime. Real world example (using Phonegap API):
+  //
+  //		var batteryLow = new Cop.Context({
+  //			name: 'batteryLow',
+  //			initialize: function() {
+  //				window.addEventListener("batterylow", onBatteryLow, false);
+  //				function onBatteryLow(info) {
+  //					if (info.level <= 30) this.activate();
+  //					else this.deactivate();
+  //				}
+  //			}
+  //		});
+  //
+  var Context = Cop.Context = function(options) {
     this._configure(options || {});
   };
 
+  // All context objects are used for dispatching `activate`, `deactivate`
+  // and `adapt` events.
   _.extend(Cop.Context.prototype, Backbone.Events, {
 
     initialize: function() {},
@@ -93,11 +110,23 @@
   // Cop.ContextManager
   // ------------------
   
-  Cop.ContextManager = function(options) {
+  // There should be one context manager in the hole system. Upon creation
+  // should be provided with all context objects and all possible relations
+  // between them.
+  //
+  //		var batteryLow = new Cop.Context({name: 'batteryLow'});
+  //		var offline    = new Cop.Context({name: 'offline'});
+  //		
+  //		var manager = new Cop.ContextManager({
+  //			contexts: [batteryLow, offline],
+  //			relations: []
+  //		});
+  //
+  var ContextManager = Cop.ContextManager = function(options) {
     this._configure(options || {});
   };
 
-  _.extend(Cop.ContextManager.prototype, Backbone.Events, {
+  _.extend(ContextManager.prototype, Backbone.Events, {
 
     start: function() {
       log("Context manager is preparing to start up.");
@@ -113,7 +142,7 @@
     },
 
     resolveConflict: function(object, contexts, getResolvedTrait) {
-      var name = this._combinedName(contexts);
+      var name = getCombinedName(contexts);
       var records = this.resolvedTraits.lookup(name);
       if (!records) {
         records = [];
@@ -131,12 +160,8 @@
         });
     },
 
-    _combinedName: function(contexts) {
-      return _.pluck(contexts, 'name').sort().join(",");
-    },
-
     _onAdapt: function(object) {
-      var originalObject = _.find(this.originalObjects, function(original){
+      var originalObject = _.find(this.originalObjects, function(original) {
         return original.object === object;
       });
       if (!originalObject) {
@@ -182,8 +207,8 @@
       var self = this;
       var contexts  = new Dictionary();
       var relations = new Dictionary();
-      var composer  = new Cop.Composer({contextManager: this});
-      // Initialize contexts.
+      var composer  = new Composer({contextManager: this});
+      // Initialize context objects.
       if (!_.isArray(options.contexts) || options.contexts.length == 0) throw new Error("Cannot create context manager without contexts.");
       _.each(options.contexts, function(context) {
         if (contexts.contains(context.name)) throw new Error("Already registered context: " + context.name + ".");
@@ -198,7 +223,8 @@
       if (_.isArray(options.relations) && options.relations.length > 0) {
         log("TODO: initialize context relations.");
       }
-      // Context manager handles context recomposition.
+      // Context manager handles context recomposition at runtime, 
+      // triggered after each context (de) activation.
       this.on("recompose:start", this._onRecomposeStart, this);
       this.on("recompose:end",   this._onRecomposeEnd,   this);
       // Context manager attributes.
@@ -217,19 +243,25 @@
 
   });
 
-  // Cop.Composer
-  // ------------
-  //
-  // The context manager delegates the composer to combine adaptations 
-  // for the currently active contexts.
-  // Composer knows how to apply object structure modifications. 
-  // He knows how to compose traits and how to make objects acquire them.
+  // Composer
+  // --------
+  
+  // An adaptation can access an original object's properties using the 
+  // following keyword.
+  var superName = '_super';
 
-  Cop.Composer = function(options) {
+  // `ContextManager` delegates the composer to do context recomposition at 
+  // runtime. The `Composer`:
+  //
+  // - knows how to gather and combine the adaptations affected by the 
+  //   currently active contexts
+  // - make's use of the `Trait` library in order to compose traits
+  // - knows how to modify objects and how to make them acquire traits
+  var Composer = function(options) {
     this._configure(options || {});
   };
 
-  _.extend(Cop.Composer.prototype, {
+  _.extend(Composer.prototype, {
     
     recompose: function(options) {
       var contexts  = options.contexts;
@@ -241,7 +273,6 @@
         contexts = this._resolveDependencies(contexts, relations);
         log("Contexts with resolved dependencies: ", contexts);
         adaptations = this._getAdaptations(contexts);
-        // TODO from here on ..
         log("Uncomposed adaptations: ", adaptations);
         this._compose(adaptations);
         log("Composed adaptations: ", adaptations);
@@ -344,7 +375,7 @@
     },
 
     _compose: function(adaptations) {
-      var cm = this.contextManager;
+    	var resolvedTraits = this.contextManager.resolvedTraits;
       function checkConflicts(adaptation) {
         try {
           Trait.create({}, adaptation.composedTrait);
@@ -356,15 +387,15 @@
         }
       }
       function resolve(adaptation) {
-        var name = cm._combinedName(adaptation.contexts);
-        var records = cm.resolvedTraits.lookup(name);
+        var name = getCombinedName(adaptation.contexts);
+        var records = resolvedTraits.lookup(name);
         var record = _.find(records, function(record) {
           return record.object === adaptation.object;
         });
         if (record) {
           log("Resolving adaptation: ", adaptation, " with record: ", record);
           var orderedTraits = [];
-          _.each(record.contexts, function(context){
+          _.each(record.contexts, function(context) {
             // TODO order traits
           });
 
@@ -385,12 +416,21 @@
         if (adaptation.hasConflict && !adaptation.resolved) {
           log("No resolved trait provided for object: ", adaptation.object, " and contexts: ", adaptation.contexts);
         } 
-        else
-          adaptation.composedObject = Object.create(adaptation.originalObject, adaptation.composedTrait);
+        else {
+        	var refToSuper = {};
+        	refToSuper[superName] = adaptation.originalObject;
+          var composedTrait = Trait.compose(adaptation.composedTrait, Trait(refToSuper));
+          adaptation.composedObject = Object.create(adaptation.originalObject, composedTrait);
+        }
       });
       log("Adaptations composition ended!");
     },
 
+    // At this point adaptations contain a reference to the `object` 
+    // that is adapted and also to the `composedObject` that should
+    // be the new object's behavior. For each adaptation the 
+    // `composedObject` methods will replace those of the adapted
+    // `object`, keeping intact it's reference.
     _install: function(adaptations) {
       function restore(object, fromObject) {
         _.each(_.keys(object), function(key) { delete object[key]; });
@@ -412,7 +452,7 @@
   // -------
 
   // For debug reasons.
-  var history = Cop.ContextManager.history = []; 
+  var history = ContextManager.history = []; 
 
   var log = function() { history.push(_.toArray(arguments)); };
 
@@ -423,11 +463,20 @@
     });
   };
 
+  // Returns a string composed from the `contexts` array that can be 
+  // used as a unique key in a dictionary.
+  function getCombinedName(contexts) {
+    return _.pluck(contexts, 'name').sort().join(",");
+  };
+
   // Dictionary for storing key-value pairs.
   function Dictionary(startValues) {
     this.values = _.clone(startValues) || {};
   }
 
+  // Simple methods to `store` and `lookup` an object, if the dictionary
+  // does not `contains` it already. In addition, an `action` can be 
+  // invoked on `each` key-value pair of the dictionary.
   _.extend(Dictionary.prototype, {
     
     store: function(name, value) {
