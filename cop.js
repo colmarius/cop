@@ -112,7 +112,7 @@
       log("Context manager has started up.");
     },
 
-    _onObjectAdapt: function(object) {
+    _onAdapt: function(object) {
       var originalObject = _.find(this.originalObjects, function(original){
         return original.object === object;
       });
@@ -168,7 +168,7 @@
           contexts.store(context.name, context);
           context.on("activate",   self._onContextChange, self);
           context.on("deactivate", self._onContextChange, self);
-          context.on("adapt",      self._onObjectAdapt,   self);
+          context.on("adapt",      self._onAdapt,         self);
         }
       });
       // Initialize relations.
@@ -369,7 +369,7 @@
 
   root.showHistory = function() { 
     _.each(history, function(lineArray) { 
-      //lineArray = lineArray.join(" ");
+      lineArray = lineArray.join(" ");
       console.log(lineArray); 
     });
   };
