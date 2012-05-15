@@ -25,9 +25,12 @@ $(document).ready(function() {
     ok(cm.contexts.registered.contains(this.b.name), "should have registered context b");
     ok(cm.contexts.registered.contains(this.c.name), "should have registered context c");
 		ok(cm.relations, "should have relations");
-		equal(cm.contexts.active.length, 0, "should have zero active contexts");
-		equal(cm.contexts.toActivate.length, 0, "should have zero contexts to activate");
-		equal(cm.contexts.toDeactivate.length, 0, "should have zero contexts to deactivate");
+		equal(cm.contexts.active.length, 0, "should have no active contexts");
+		equal(cm.contexts.toActivate.length, 0, "should have no contexts to activate");
+		equal(cm.contexts.toDeactivate.length, 0, "should have no contexts to deactivate");
+    ok(cm.composer, "should have composer");
+    ok(cm.resolvedTraits, "should have resolvedTraits");
+    equal(cm.originalObjects.length, 0, "should have no adaptations stored in original objects");
 
     try {
       cm = new Cop.ContextManager({
@@ -41,7 +44,7 @@ $(document).ready(function() {
       cm = new Cop.ContextManager({
         contexts: undefined,
       });      
-      ok(false, "should throw error creating context manager with 'contexts' parameter undefined");
+      ok(false, "should throw error creating context manager with contexts parameter undefined");
     } catch(err) {
       equal(err.message, "Cannot create context manager without contexts.");
     }
@@ -50,7 +53,16 @@ $(document).ready(function() {
       cm = new Cop.ContextManager({
         contexts: {},
       });      
-      ok(false, "should throw error creating context manager without an array 'contexts' ");
+      ok(false, "should throw error creating context manager without an array with contexts");
+    } catch(err) {
+      equal(err.message, "Cannot create context manager without contexts.");
+    }
+
+    try {
+      cm = new Cop.ContextManager({
+        contexts: [],
+      });      
+      ok(false, "should throw error creating context manager with empty contexts");
     } catch(err) {
       equal(err.message, "Cannot create context manager without contexts.");
     }
@@ -75,5 +87,12 @@ $(document).ready(function() {
     });
     
   });
+
+  test("ContextManager: TODO start", function() {
+
+  });
     
+  test("ContextManager: TODO resolveConflict", function() {
+
+  });
 });
