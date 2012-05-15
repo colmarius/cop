@@ -64,10 +64,15 @@
   // and `adapt` events.
   _.extend(Cop.Context.prototype, Backbone.Events, {
 
+  	// This method is called by the `ContextManager` on the context for initialization.
     initialize: function() {},
 
     destroy: function() {},
 
+    // Context is activated by calling `activate`:
+    //
+    //		batteryLow.activate(); 
+    // 		
     activate: function() {
       if (!this.active) {
         this.active = true;
@@ -75,6 +80,10 @@
       }
     },
 
+    // Context is deactivated by calling `deactivate`:
+    //
+    //		batteryLow.deactivate(); 
+    // 	
     deactivate: function() {
       if (this.active) {
         this.active = false;
@@ -82,6 +91,19 @@
       }
     },
 
+    // Adaptation to context is declared by calling `adapt` on the 
+    // context, and by providing the `object` that should exhibit 
+    // context-dependent behavior and by providing the `trait`, 
+    // also known as adaptation.
+    //
+    //		MyApp = {
+    //			initScreen: function() { alert("Normal initialization."); }
+    //		};
+    //
+    //		batteryLow.adapt(MyApp, Trait({
+    //			initScreen: function() { alert("Low battery initialization."); }
+    //		}));
+    //		
     adapt: function(object, trait) {
       if (object === root) throw new Error("Cannot adapt the global object.");
       if (!_.isObject(object)) throw new Error("Only objects can be adapted.");
@@ -90,6 +112,7 @@
       this.trigger("adapt", object);
     },
 
+    // Returns the adaptation for the `object` if any.
     getAdaptation: function(object) {
       return _.find(this.adaptations, function(adaptation) {
         return adaptation.object === object;
