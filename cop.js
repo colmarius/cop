@@ -108,15 +108,11 @@
       });
       this.running = true;
       log("Context manager is running.");
-      if (this.contexts.toActivate.length > 0) 
-        this.trigger("recompose", {
-          contexts: this.contexts,
-          relations: this.relations
-        });
+      if (this.contexts.toActivate.length > 0) this.trigger("recompose:start");
       log("Context manager has started up.");
     },
 
-    onObjectAdapted: function(object) {
+    _onObjectAdapt: function(object) {
       var originalObject = _.find(this.originalObjects, function(original){
         return original.object === object;
       });
@@ -130,7 +126,7 @@
       else log("Object already adapted: " + object + ". ");
     },
 
-    onContextChanged: function(context) {
+    _onContextChange: function(context) {
       log("Context " + context.name + " triggered " + (context.active ? "activate" : "deactivate"));
       if (context.active) {
         this.contexts.toActivate.push(context);
@@ -140,12 +136,23 @@
         this.contexts.toDeactivate.push(context);
         log("Context " + context.name + " marked for deactivation.");
       }
-      if (this.running) 
-        this.trigger("recompose", {
-          contexts: this.contexts, 
-          relations: this.relations
-        });
-      else log("Context manager not running yet. Context " + context.name + " not activated.");
+      if (this.running) this.trigger("recompose:start");
+      else log("Context manager not running: context '" + context.name + "' not activated yet.");
+    },
+
+    _onRecomposeStart: function() {
+      log("Context recomposition started:");
+      log("Contexts active: [" + _.pluck(this.contexts.active, 'name') + "], to activate: [" + _.pluck(this.contexts.toActivate, 'name') + "], to deactivate: [" + _.pluck(this.contexts.toDeactivate, 'name') + "].");
+      this.composer.recompose({
+        contexts:  this.contexts,
+        relations: this.relations
+      });
+    },
+
+    _onRecomposeEnd: function(contexts) {
+      this.contexts = contexts;
+      log("Context recompositon ended!");
+      log("Contexts active: [" + _.pluck(contexts.active, 'name') + "], to activate: [" + _.pluck(contexts.toActivate, 'name') + "], to deactivate: [" + _.pluck(contexts.toDeactivate, 'name') + "].");
     },
 
     _configure: function(options) {
@@ -159,24 +166,27 @@
         if (contexts.contains(context.name)) throw new Error("Already registered context: " + context.name + ".");
         else {
           contexts.store(context.name, context);
-          context.on("activate",   self.onContextChanged, self);
-          context.on("deactivate", self.onContextChanged, self);
-          context.on("adapt",      self.onObjectAdapted,  self);
+          context.on("activate",   self._onContextChange, self);
+          context.on("deactivate", self._onContextChange, self);
+          context.on("adapt",      self._onObjectAdapt,   self);
         }
       });
       // Initialize relations.
       if (_.isArray(options.relations) && options.relations.length > 0) {
         log("TODO: initialize context relations.");
       }
+      // Handle recompose:start, recompose:end events.
+      this.on("recompose:start", this._onRecomposeStart, this);
+      this.on("recompose:end",   this._onRecomposeEnd,   this);
       // Context manager attributes.
       this.options = options;
-      this.relations = relations;
       this.contexts = {
         registered:   contexts,
         active:       [],
         toActivate:   [],
         toDeactivate: []
       };
+      this.relations = relations;
       this.composer = composer;
       this.originalObjects = [];
     }
@@ -197,38 +207,38 @@
     recompose: function(options) {
       var contexts    = options.contexts;
       var relations   = options.relations;
-      var adaptations = options.adaptations;
+      var adaptations;
+      var conflicts;
       if (!this.recomposing) {
-        log("Contexts Recomposition Started:");
         this.recomposing = true;
-        log("Contexts active: [" + _.pluck(contexts.active, 'name') + "], to activate: [" + _.pluck(contexts.toActivate, 'name') + "], to deactivate: [" + _.pluck(contexts.toDeactivate, 'name') + "].");
         contexts = this.resolveDependencies(contexts, relations);
         console.log("Contexts with resolved dependencies: ", contexts);
         adaptations = this.getAdaptations(contexts);
         this.compose(adaptations);
         console.log("Composed adaptations: ", adaptations);
-        var conflicts = _.filter(adaptations, function(adaptation) {
+        conflicts = _.filter(adaptations, function(adaptation) {
           return adaptation.hasConflicts;
         });
         if (conflicts.length > 0) {
-          log("Conflicts detected started:");
+          log("Conflicts detected!");
+          console.log("Conflicts detected: ", conflicts);
           _.each(conflicts, function(adaptation) {
             console.log("Conflicting adaptations: ", adaptation);
           });
-          log("Conflicts detected ended!");
         }
         else {          
+          log("No conflicts detected.");
           this.install(adaptations);
-          this.contextManager.contexts = {
+          contexts = {
             active       : _.difference(_.union(contexts.active, contexts.toActivate), contexts.toDeactivate),
             toActivate   : [],
             toDeactivate : []
           };
           console.log("ContextManager: ", this.contextManager);
+          console.log("Recomposed contexts: ", contexts);
+          this.contextManager.trigger("recompose:end", contexts);
         }
         this.recomposing = false;
-        log("Contexts Recomposition Ended!");
-        log("Contexts active: [" + _.pluck(contexts.active, 'name') + "], to activate: [" + _.pluck(contexts.toActivate, 'name') + "], to deactivate: [" + _.pluck(contexts.toDeactivate, 'name') + "].");
       }
       else log("ALREADY RECOMPOSING CONTEXTS.");
     },
@@ -342,9 +352,7 @@
 
     _configure: function(options) {
       if (!options.contextManager) throw new Error("Cannot create composer without a context manager.");
-      var contextManager = options.contextManager;
-      contextManager.on("recompose", this.recompose, this);
-      this.contextManager = contextManager;
+      this.contextManager = options.contextManager;
     }
 
   });
