@@ -42,8 +42,10 @@
   // Cop.Context
   // -----------
 
-  // A context object reifies the presence or absence of a possible 
-  // situation at runtime. Real world example (using Phonegap API):
+  // A Context object reifies the presence or absence of a situation
+  // while an application executes. 
+  // Follows real world example that uses the Phonegap API to reify as
+  // a context the *low battery* situation on a mobile device.
   //
   //		var batteryLow = new Cop.Context({
   //			name: 'batteryLow',
@@ -60,16 +62,32 @@
     this._configure(options || {});
   };
 
-  // All context objects are used for dispatching `activate`, `deactivate`
-  // and `adapt` events.
+  // All Context objects respond to `Backbone.Events` methods 
+  // `on`, `off` and `trigger`. In particular, `on` and `off`
+  // methods can be used to subscribe and unsubscribe **callbacks** 
+  // on the *activate* and *deactivate* events.
+  //
+  //		batteryLow.on('activate', function() {
+  //			alert("battery is now low");
+  //		});
+  //
+  //		batteryLow.on('deactivate', function() {
+  //			alert("battery is back to normal");
+  //		});
+  //
   _.extend(Cop.Context.prototype, Backbone.Events, {
 
-  	// This method is called by the `ContextManager` on the context for initialization.
+  	// The `initialize` method should provide logic to read some data
+  	// from the system and then invoke either the `activate` or 
+  	// `deactivate` methods on the context instance.
+  	// The ContextManager is created with a set of contexts and it 
+  	// uses the `initialize` method to perform context initialization.
     initialize: function() {},
 
+    // FUTURE: has no role for now.
     destroy: function() {},
 
-    // Context is activated by calling `activate`:
+    // Activating a Context is done by calling the `activate` method:
     //
     //		batteryLow.activate(); 
     // 		
@@ -80,7 +98,8 @@
       }
     },
 
-    // Context is deactivated by calling `deactivate`:
+    // Analogously, deactivating a Context is done by calling the 
+    // `deactivate` method:
     //
     //		batteryLow.deactivate(); 
     // 	
@@ -92,9 +111,8 @@
     },
 
     // Adaptation to context is declared by calling `adapt` on the 
-    // context, and by providing the `object` that should exhibit 
-    // context-dependent behavior and by providing the `trait`, 
-    // also known as adaptation.
+    // Context, and by providing the `object` to be adapted and 
+    // the adaptation as a `trait`.
     //
     //		MyApp = {
     //			initScreen: function() {
@@ -117,13 +135,18 @@
       this.trigger("adapt", object);
     },
 
-    // Returns the adaptation for the `object` if any.
+    // Returns the contedxt-dependent *adaptation* for the `object` 
+    // if one was previously stored.
     getAdaptation: function(object) {
       return _.find(this.adaptations, function(adaptation) {
         return adaptation.object === object;
       });
     },
 
+    // Performs the initial configuration of a Context from a set of 
+    // `options`. All contexts have a *name*, an *active* state, a set 
+    // of *adaptations*, and optionally an *initialize* and a *destroy* 
+    // function.
     _configure: function(options) {      
       if (!options.name || options.name === "") throw new Error("Context object must have a name.");
       this.name = options.name;
