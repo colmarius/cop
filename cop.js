@@ -97,11 +97,16 @@
     // also known as adaptation.
     //
     //		MyApp = {
-    //			initScreen: function() { alert("Normal initialization."); }
+    //			initScreen: function() {
+    //				alert("Normal initialization."); 
+    //			}
     //		};
     //
     //		batteryLow.adapt(MyApp, Trait({
-    //			initScreen: function() { alert("Low battery initialization."); }
+    //			initScreen: function() { 
+    //				// this._super.initScreen();
+    //				alert("Low battery initialization."); 
+    //			}
     //		}));
     //		
     adapt: function(object, trait) {

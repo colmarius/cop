@@ -58,11 +58,16 @@ context-dependent behavior and by providing the <code>trait</code>,
 also known as adaptation.</p>
 
 <pre><code>MyApp = {
-    initScreen: function() { alert("Normal initialization."); }
+    initScreen: function() {
+        alert("Normal initialization."); 
+    }
 };
 
 batteryLow.adapt(MyApp, Trait({
-    initScreen: function() { alert("Low battery initialization."); }
+    initScreen: function() { 
+        // this._super.initScreen();
+        alert("Low battery initialization."); 
+    }
 }));
 </code></pre>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nx">adapt</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">object</span><span class="p">,</span> <span class="nx">trait</span><span class="p">)</span> <span class="p">{</span>
       <span class="k">if</span> <span class="p">(</span><span class="nx">object</span> <span class="o">===</span> <span class="nx">root</span><span class="p">)</span> <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s2">&quot;Cannot adapt the global object.&quot;</span><span class="p">);</span>
