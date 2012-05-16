@@ -2,7 +2,7 @@
 //
 //     (c) 2012 Marius Colacioiu
 //     Cop library may be freely distributed under Apache 2.0 license.
-//     For all details and documention:
+//     For all details and documentation:
 //     (url)
 (function() {
   
@@ -10,7 +10,7 @@
   // -------------
 
   // Save a reference to the global object (`window` in the browser, 
-  // `global`on the server).
+  // `global` on the server).
   var root = this;
 
   // The top-level namespace. All public Cop classes and modules will
@@ -135,7 +135,7 @@
       this.trigger("adapt", object);
     },
 
-    // Returns the contedxt-dependent *adaptation* for the `object` 
+    // Returns the context-dependent *adaptation* for the `object` 
     // if one was previously stored.
     getAdaptation: function(object) {
       return _.find(this.adaptations, function(adaptation) {
