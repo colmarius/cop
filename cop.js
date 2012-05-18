@@ -1,4 +1,4 @@
-//     Cop.js 0.0.3
+//     Cop.js 0.0.9
 //
 //     (c) 2012 Marius Colacioiu
 //     Cop library may be freely distributed under Apache 2.0 license.
@@ -22,7 +22,7 @@
     Cop = root.Cop = {};
 
   // Current version of the library.
-  Cop.VERSION = '0.0.3';
+  Cop.VERSION = '0.0.9';
 
   // Require Underscore, if we're on the server, and it's not already present.
   var _ = root._;
