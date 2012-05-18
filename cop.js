@@ -498,8 +498,12 @@
       return results;
     },
 
+    // Compose all adaptations.
     _compose: function(adaptations) {
-    	var resolvedTraits = this.contextManager.resolvedTraits;
+      // Reference to ContextManager's resolved traits.
+      var resolvedTraits = this.contextManager.resolvedTraits;
+      // Mark adaptation if has conflicts, meaning some required property 
+      // was not provided, or there are properties with conflicts. 
       function checkConflicts(adaptation) {
         try {
           Trait.create({}, adaptation.composedTrait);
@@ -510,6 +514,11 @@
           adaptation.errorMessage = err.message;
         }
       }
+      // Resolve conflict for adaptation by looking for a resolved trait
+      // for the conflicting contexts.
+      //
+      // TODO: get **minimal conflict** for the conflicting contexts 
+      // (look only for those contexts in the adaptation).
       function resolve(adaptation) {
         var name = getCombinedName(adaptation.contexts);
         var records = resolvedTraits.lookup(name);
@@ -517,13 +526,17 @@
           return record.object === adaptation.object;
         });
         if (record) {
-          log("Resolving adaptation: ", adaptation, " with record: ", record);
+          // Order traits in same order as the contexts found in the resolved
+          // trait record.
           var orderedTraits = [];
           _.each(record.contexts, function(context) {
-            // TODO order traits
+            var index = _.indexOf(adaptation.contexts, context);
+            orderedTraits.push(adaptation.traits[index]);
           });
-
-          var resolvedTrait = record.getResolvedTrait.apply(null, adaptation.traits);
+          // Call `getResolvedTrait` callback to obtain the conflict-free 
+          // trait.
+          var resolvedTrait = record.getResolvedTrait.apply(null, orderedTraits);
+          // Set conflict as resolved.
           adaptation.composedTrait = resolvedTrait;
           delete adaptation.hasConflict;
           delete adaptation.errorMessage;
@@ -541,8 +554,8 @@
           log("No resolved trait provided for object: ", adaptation.object, " and contexts: ", adaptation.contexts);
         } 
         else {
-        	var refToSuper = {};
-        	refToSuper[superName] = adaptation.originalObject;
+          var refToSuper = {};
+          refToSuper[superName] = adaptation.originalObject;
           var composedTrait = Trait.compose(adaptation.composedTrait, Trait(refToSuper));
           adaptation.composedObject = Object.create(adaptation.originalObject, composedTrait);
         }
