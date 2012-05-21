@@ -1,9 +1,9 @@
-//     Cop.js 0.0.9
+//     Cop.js 0.1.0
 //
 //     (c) 2012 Marius Colacioiu
 //     Cop library may be freely distributed under Apache 2.0 license.
 //     For all details and documentation:
-//     (url)
+//     http://colmarius.github.com/cop/
 (function() {
   
   // Initial Setup
@@ -22,7 +22,7 @@
     Cop = root.Cop = {};
 
   // Current version of the library.
-  Cop.VERSION = '0.0.9';
+  Cop.VERSION = '0.1.0';
 
   // Require Underscore, if we're on the server, and it's not already present.
   var _ = root._;
@@ -113,17 +113,25 @@
     // A context adaptation is declared by calling `adapt` on the Context, and 
     // by providing the `object` to be adapted and the adaptation as a `trait`.
     //
-    //		MyApp = {
+    // *Note*: **Traits** are **composable units of code reuse**. Here a single
+    // trait is used as an adaptation: one which exhibits context-dependent 
+    // behavior for a single object. A trait is used to group a set of methods 
+    // and properties that can be acquired by an adapted object, at runtime, 
+    // when a context is active.
+    //
+    //		MYAPP = {
     //			initScreen: function() {
     //				alert("Normal initialization."); 
-    //			}
+    //			},
+    //			...
     //		};
     //
-    //		batteryLow.adapt(MyApp, Trait({
+    //		batteryLow.adapt(MYAPP, Trait({
     //			initScreen: function() { 
     //				// this._super.initScreen();
     //				alert("Low battery initialization."); 
-    //			}
+    //			},
+    //			...
     //		}));
     //		
     adapt: function(object, trait) {
@@ -183,14 +191,23 @@
   // to trigger the *start* and *end* of contexts recomposition.
   _.extend(ContextManager.prototype, Backbone.Events, {
 
-  	// Performs ContextManager initialization. Once the ContextManager has 
-    // started *activating* and *deactivating* a Context will have an effect 
-    // on adapted objects, making them acquire traits 
-    // (or context-dependent behavior).
+  	// Performs ContextManager initialization. 
+    //
+    // *Note*: From here on, the ContextManager is notified about a Context's 
+    // *activation* and *deactivation*. In reaction to that, 
+    // it will start changing the behavior of adapted objects, 
+    // by making them acquire traits (context-dependent behavior).
     start: function() {
       log("Context manager is preparing to start up.");
+      var self = this;
       this.contexts.registered.each(function(context) {
         log("Initializing context '" + context.name + "'.");
+        if (context.adaptations.length > 0) {
+          // Store original behavior for objects that already have adaptations.
+          _.each(context.adaptations, function(adaptation) {
+            self._onAdapt(adaptation.object);
+          }); 
+        }
         context.initialize();
         log("Context '" + context.name + "' is now initialized.");
       });
@@ -200,14 +217,13 @@
       log("Context manager has started up.");
     },
 
-    // Objects can have different traits for different contexts.
-    // These traits may easilly conflict if they provide the same
-    // property name. A mechanism for resolving conflicts between
-    // traits may be easily provided.
+    // Objects can have different traits for different contexts. These traits
+    // may easilly conflict if they provide the same property or method name. 
+    // A mechanism for resolving conflicts between traits may be easily provided.
     // 
     // Recall the `MYAPP` object:
     //
-    //		MyApp = {
+    //		MYAPP = {
     //			initScreen: function() {
     //				alert("Normal initialization."); 
     //			}
@@ -217,17 +233,17 @@
     // have two adaptations for the `MYAPP` object for the same method:
     //
     //
-    //		batteryLow.adapt(MyApp, Trait({
+    //		batteryLow.adapt(MYAPP, Trait({
     //			initScreen: function() { 
     //				// this._super.initScreen();
     //				alert("Low battery initialization."); 
     //			}
     //		}));
     //		
-    //		offline.adapt(MyApp, Trait({
+    //		offline.adapt(MYAPP, Trait({
     //			initScreen: function() { 
     //				// this._super.initScreen();
-    //				alert("Low battery initialization."); 
+    //				alert("No network initialization."); 
     //			}
     //		}));
     //		
@@ -313,8 +329,9 @@
       });
     },
 
-    // Called after contexts recomposition. Composer has finished contexts
-    // recomposition and it sets the new *active* contexts.
+    // Called after contexts recomposition has ended. Composer has finished 
+    // recomposing contexts and sets the new *active* contexts on the 
+    // ContextManager.
     _onRecomposeEnd: function(contexts) {
       this.contexts = contexts;
       log("Context recompositon ended!");
@@ -411,9 +428,13 @@
           return adaptation.hasConflict;
         });
         if (conflicts.length > 0) {
-          // Log unresolved conflicts.
+          // Log unresolved conflicts and throw conflict errors.
           _.each(conflicts, function(conflict) {
-            log("Contexts ", getName(conflict.contexts), " have an unresolved conflict for object: ", conflict.object, " with errorMessage: ", conflict.errorMessage);
+            var contexts     = getName(conflict.contexts);
+            var errorMessage = conflict.errorMessage;
+            var object       = conflict.object;
+            log("Contexts ", contexts, ", object: ", object, ", conflict: ", errorMessage);
+            throw new Error("Contexts " + contexts + " have unresolved conflict for object: " + object + " with error message: " + errorMessage);
           });
           // Restore contexts as before recomposition.
           contexts = options.contexts;
@@ -573,8 +594,8 @@
           // Try to *resolve* the conflict if any.
           resolve(adaptation);
         if (adaptation.hasConflict && !adaptation.resolved) {
-          // If not resolved, *log the conflict* and the fact that a 
-          // `resolvedTrait` record is *missing* and should be provided.
+          // If not resolved log the conflict, because a `resolvedTrait` 
+          // record is *missing* and should have been provided.
           log("No resolved trait provided for object: ", adaptation.object, " and contexts: ", getName(adaptation.contexts));
         }
         else {
@@ -662,9 +683,12 @@
   // Logged messages go into history.
   var log = function() { history.push(_.toArray(arguments)); };
 
+  // You can inspect the history of logged messages in the console by calling:
+  //
+  //		Cop.ContextManager.showHistory();
+  //
   ContextManager.showHistory = function() { 
     _.each(history, function(lineArray) { 
-      //lineArray = lineArray.join(" ");
       console.log(lineArray); 
     });
   };
