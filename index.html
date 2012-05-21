@@ -1,0 +1,681 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+  <link rel="icon" href="docs/images/favicon.ico" />
+  <title>Cop.js</title>
+  <style>
+    body {
+      font-size: 14px;
+      line-height: 20px;
+      font-family: Arial;
+      color: #464749;
+      background: #f2f7f4;
+    }
+    .interface {
+      font-family: Arial !important;
+    }
+    div#sidebar {
+      background: #fff;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      width: 160px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      padding: 15px 0 30px 30px;
+      border-right: 1px solid #bbb;
+      box-shadow: 0 0 20px #a7cbbe; -webkit-box-shadow: 0 0 20px #a7cbbe; -moz-box-shadow: 0 0 20px #a7cbbe;
+    }
+    a.toc_title, a.toc_title:visited {
+      display: block;
+      color: #023819;
+      font-weight: bold;
+      margin-top: 15px;
+    }
+    a.toc_title:hover {
+      text-decoration: underline;
+    }
+    #sidebar .version {
+      font-size: 10px;
+      font-weight: normal;
+    }
+    ul.toc_section {
+      font-size: 11px;
+      line-height: 14px;
+      margin: 5px 0 0 0;
+      padding-left: 0px;
+      list-style-type: none;
+      font-family: Arial;
+    }
+    .toc_section li {
+      cursor: pointer;
+      margin: 0 0 3px 0;
+    }
+    .toc_section li a {
+      text-decoration: none;
+      color: #023819;
+    }
+    .toc_section li a:hover {
+      text-decoration: underline;
+    }
+    div.container {
+      position: relative;
+      width: 570px;
+      margin: 40px 0 50px 260px;
+    }
+    div.run {
+      position: absolute;
+      right: 15px;
+      width: 26px; height: 18px;
+      background: url('docs/images/arrows.png') no-repeat -26px 0;
+    }
+    div.run:active {
+      background-position: -51px 0;
+    }
+    p, div.container ul {
+      margin: 25px 0;
+      width: 550px;
+    }
+    p.warning {
+      font-size: 12px;
+      line-height: 18px;
+      font-style: italic;
+    }
+    div.container ul {
+      list-style: circle;
+      padding-left: 15px;
+      font-size: 13px;
+      line-height: 18px;
+    }
+    div.container ul li {
+      margin-bottom: 10px;
+    }
+    div.container ul.small {
+      font-size: 12px;
+    }
+    a, a:visited {
+      color: #035a28;
+    }
+    a:active, a:hover {
+      color: #023819;
+    }
+    a.punch {
+      display: inline-block;
+      background: #139a5d;
+      border-top: 1px solid #035a28;
+      border-right: 1px solid #023819;
+      border-bottom: 1px solid #023819;
+      border-left: 1px solid #023819;
+      -webkit-border-radius: 4px;
+      -moz-border-radius: 4px;
+      -ms-border-radius: 4px;
+      -o-border-radius: 4px;
+      border-radius: 4px;
+      -webkit-box-shadow: inset 0 1px 10px 1px #139a5d, 0px 1px 0 #1d2c4d, 0 6px 0px #023819, 0 8px 4px 1px #111111;
+      -moz-box-shadow: inset 0 1px 10px 1px #139a5d, 0px 1px 0 #1d2c4d, 0 6px 0px #023819, 0 8px 4px 1px #111111;
+      -ms-box-shadow: inset 0 1px 10px 1px #139a5d, 0px 1px 0 #1d2c4d, 0 6px 0px #023819, 0 8px 4px 1px #111111;
+      -o-box-shadow: inset 0 1px 10px 1px #139a5d, 0px 1px 0 #1d2c4d, 0 6px 0px #023819, 0 8px 4px 1px #111111;
+      box-shadow: inset 0 1px 10px 1px #139a5d, 0px 1px 0 #1d2c4d, 0 6px 0px #023819, 0 8px 4px 1px #111111;
+      color: #fff;
+      font: bold 15px Arial;
+      line-height: 1;
+      margin-bottom: 15px;
+      padding: 8px 0 10px 0;
+      text-align: center;
+      text-shadow: 0px -1px 1px #1e2d4d;
+      text-decoration: none;
+      width: 225px;
+      -webkit-background-clip: padding-box; }
+    a.punch:hover {
+      -webkit-box-shadow: inset 0 0px 20px 1px #69c599, 0px 1px 0 #1d2c4d, 0 6px 0px #023819, 0 8px 4px 1px #111111;
+      -moz-box-shadow: inset 0 0px 20px 1px #69c599, 0px 1px 0 #1d2c4d, 0 6px 0px #023819, 0 8px 4px 1px #111111;
+      -ms-box-shadow: inset 0 0px 20px 1px #69c599, 0px 1px 0 #1d2c4d, 0 6px 0px #023819, 0 8px 4px 1px #111111;
+      -o-box-shadow: inset 0 0px 20px 1px #69c599, 0px 1px 0 #1d2c4d, 0 6px 0px #023819, 0 8px 4px 1px #111111;
+      box-shadow: inset 0 0px 20px 1px #69c599, 0px 1px 0 #1d2c4d, 0 6px 0px #023819, 0 8px 4px 1px #111111;
+      cursor: pointer; }
+    a.punch:active {
+      -webkit-box-shadow: inset 0 1px 10px 1px #139a5d, 0 1px 0 #1d2c4d, 0 2px 0 #023819, 0 4px 3px 0 #111111;
+      -moz-box-shadow: inset 0 1px 10px 1px #139a5d, 0 1px 0 #1d2c4d, 0 2px 0 #023819, 0 4px 3px 0 #111111;
+      -ms-box-shadow: inset 0 1px 10px 1px #139a5d, 0 1px 0 #1d2c4d, 0 2px 0 #023819, 0 4px 3px 0 #111111;
+      -o-box-shadow: inset 0 1px 10px 1px #139a5d, 0 1px 0 #1d2c4d, 0 2px 0 #023819, 0 4px 3px 0 #111111;
+      box-shadow: inset 0 1px 10px 1px #139a5d, 0 1px 0 #1d2c4d, 0 2px 0 #023819, 0 4px 3px 0 #111111;
+      margin-top: 5px; margin-bottom: 10px }
+    a img {
+      border: 0;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      padding-top: 20px;
+    }
+    h2 {
+      font-size: 22px;
+    }
+    b.header {
+      font-size: 18px;
+      line-height: 35px;
+    }
+    span.alias {
+      font-size: 14px;
+      font-style: italic;
+      margin-left: 20px;
+    }
+    table {
+      margin: 15px 0 0; padding: 0;
+    }
+    tr, td {
+      margin: 0; padding: 0;
+    }
+    td {
+      padding: 0px 15px 5px 0;
+    }
+    code, pre, tt {
+      font-family: Monaco, Consolas, "Lucida Console", monospace;
+      font-size: 12px;
+      line-height: 18px;
+      font-style: normal;
+    }
+    tt {
+      padding: 0px 3px;
+      background: #fff;
+      border: 1px solid #ddd;
+      zoom: 1;
+    }
+    code {
+      margin-left: 20px;
+    }
+    pre {
+      font-size: 12px;
+      padding: 2px 0 2px 15px;
+      border: 4px solid #bbb; border-top: 0; border-bottom: 0;
+      margin: 0px 0 25px;
+    }
+    img.example_image {
+      margin: 0px auto;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="sidebar" class="interface">
+
+    <a class="toc_title" href="#">
+      Cop.js <span class="version">(0.1.0)</span>
+    </a>
+    <ul class="toc_section">
+      <li>&raquo; <a href="http://github.com/colmarius/cop">GitHub Repository</a></li>
+      <li>&raquo; <a href="docs/cop.html">Annotated Source</a></li>
+    </ul>
+
+    <a class="toc_title" href="#introduction">
+      Introduction
+    </a>
+
+    <a class="toc_title" href="#Context">
+      Context
+    </a>
+    <ul class="toc_section">
+      <li>– <a href="#Context-on">on</a></li>
+      <li>– <a href="#Context-off">off</a></li>
+      <li>– <a href="#Context-activate">activate</a></li>
+      <li>– <a href="#Context-deactivate">deactivate</a></li>
+      <li>– <a href="#Context-adapt">adapt</a></li>
+    </ul>
+
+    <a class="toc_title" href="#ContextManager">
+      ContextManager
+    </a>
+    <ul class="toc_section">
+      <li>– <a href="#ContextManager-start">start</a></li>
+      <li>– <a href="#ContextManager-resolveConflict">resolveConflict</a></li>
+    </ul>
+
+    <a class="toc_title" href="#examples">
+      Examples
+    </a>
+    <ul class="toc_section">
+      <li>– <a href="#examples-contextsdemo">Contexts demo</a></li>
+      <li>– <a href="#examples-ciclami">CiclaMi</a></li>
+    </ul>
+
+    <a class="toc_title" href="#changelog">
+      Change Log
+    </a>
+
+  </div>
+
+  <div class="container">
+
+    <p>
+      <img style="width: 500px; height: 255px;" src="docs/images/cop.png" alt="Cop.js" />
+    </p>
+
+    <p>
+      Cop.js gives better maintainability and evolution to web applications 
+      by providing <b>contexts</b> and <b>traits</b>. Cop.js is based on the
+      <b>context-oriented programming</b> paradigm where <i>objects</i> are 
+      <i>adapted</i> at <i>runtime</i> with <i>different behavior</i> 
+      depending on the <i>context of execution</i>.
+    </p>
+
+    <p>
+      The project is 
+      <a href="http://github.com/colmarius/cop/">hosted on GitHub</a>, with <a href="docs/cop.html">annotated source code</a> made available, as well as an online <a href="test/test.html">test suite</a>, and here is an 
+      <a href="examples/contexts/demo.html">example of how to use contexts</a>.
+      Cop is available for use under the <a href="http://github.com/colmarius/cop/blob/master/LICENSE">Apache 2.0 software license</a>.
+    </p>
+
+    <!--
+    <p>
+      You can report bugs and discuss features on the
+      <a href="http://github.com/colmarius/cop/issues">GitHub issues page</a>, post questions to the
+      <a href="https://groups.google.com/forum/#!forum/copjs">Google Group</a>,
+      add pages to the <a href="https://github.com/colmarius/cop/wiki">wiki</a>
+      or send tweets to <a href="http://twitter.com/copjs">@copjs</a>.
+    </p>
+    -->
+
+    <h2 id="downloads">
+      Downloads &amp; Dependencies
+      <span style="padding-left: 7px; font-size:11px; font-weight: normal;" class="interface">(Right-click, and use "Save As")</span>
+    </h2>
+
+    <table>
+      <tr>
+        <td><a class="punch" href="cop.js">Development Version (0.1.0)</a></td>
+        <td><i>26kb, Full source, lots of comments</i></td>
+      </tr>
+      <tr>
+        <td><a class="punch" href="cop-min.js">Production Version (0.1.0)</a></td>
+        <td><i>7kb, Packed and gzipped</i></td>
+      </tr>
+    </table>
+
+    <p>
+      Cop's dependencies are:
+      <ul>
+        <li><a href="http://documentcloud.github.com/underscore/">Underscore.js</a> <small>( > 1.3.1)</small>.</li>
+        <li><a href="http://documentcloud.github.com/backbone/">Backbone.js</a> <small>( > 0.9.2)</small>.</li>
+        <li><a href="http://traitsjs.org">Traits.js</a> <small>( > 0.4)</small>.</li>
+      </ul>
+    </p>
+
+    <h2 id="introduction">Introduction</h2>
+
+    <p>
+      The <b>context-oriented programming</b> paradigm, for short <i>COP</i>,
+      provides language level abstractions that simplify the development of 
+      <b>context-aware applications</b>. As of today, there is a lack of COP languages that can reach all major mobile platforms.
+    </p>
+
+    <p>
+      We propose Cop.js, a COP language extension for Javascript that can be
+      used either in web apps or in hybrid apps. <b>Hybrid apps</b> have the 
+      advantage of running on all major mobile platforms. In addition, 
+      our approach overcomes some limitations of current COP solutions 
+      in <i>solving conflicts between adaptations</i>. 
+      Mainly, by treating <b>adaptations as traits</b>.
+    </p>
+
+    <p>
+      If you're new to context-oriented programming, and curious about what Cop can do for you, start by looking at the <a href="examples/contexts/demo.html">contexts demo</a>. There you find a <i>running example</i>, where
+      you can <i>edit</i> and <i>run</i> the code directly in the browser.
+    </p>
+
+    <h2 id="Context">Cop.Context</h2>
+
+    <p>
+      <b>Contexts</b> can be seen as the <i>reification of a situation that can 
+      occur while an application executes</i>. For example, an application 
+      running on mobile might be interested if the battery runs low, the 
+      internet connection is interrupted, or the GPS is momentarily disabled. 
+      A part from raw data being sensed, other contextual information might be 
+      of interest, like the user being logged as guest or as admin, if he speaks 
+      english or french, or if his current location is at home, at work, or at 
+      the university.
+    </p>
+
+    <p>
+      For example, if we are on mobile we might be interested in treating the 
+      <i>battery low</i> situation as a context. By using the Phonegap API we 
+      can listen to the <tt>"batterylow"</tt> event. Here is how we can create a <tt>batteryLow</tt> Context:
+    </p>
+
+<pre>
+var batteryLow = new Cop.Context({
+    name: 'batteryLow',
+    initialize: function() {
+        window.addEventListener("batterylow", onBatteryLow, false);
+        function onBatteryLow(info) {
+            if (info.level <= 30) this.activate();
+            else this.deactivate();
+        }
+    }
+});
+</pre>
+    
+    <p>
+      However, a simple context can be created as follows:
+    </p>
+
+<pre class="runnable">
+context = new Cop.Context({ name: 'test' });
+</pre>
+
+    <p id="Context-on">
+      <b class="header">on</b><code>context.on(event, callback, [object])</code>
+      <br />
+      Bind a <b>callback</b> on a Context event. The <b>event</b> can be:
+      <ul>
+        <li><tt>'activate'</tt> fired after activation</li>
+        <li><tt>'deactivate'</tt> fired after deactivation</li>
+        <li><tt>'adapt'</tt> fired after an object is adapted</li>
+      </ul>
+    </p>
+
+    <p>
+      Here is an example of binding a callback that will be called after 
+      the <tt>context</tt> object is activated. 
+    </p>
+
+<pre class="runnable">
+function onActivate(context) {
+  alert("context '" + context.name + "' is now active");
+}
+context.on('activate', onActivate);
+</pre>
+
+    <p>
+      Here is an example of binding a callback that will be called after the <tt>context</tt> object is deactivated. 
+    </p>
+
+<pre class="runnable">
+function onDeactivate(context) {
+  alert("context '" + context.name + "' is no more active");
+}
+context.on('deactivate', onDeactivate);
+</pre>
+
+    <p id="Context-off">
+      <b class="header">off</b><code>context.off(event, callback, [object])</code>
+      <br />
+      Remove a <b>callback</b> previously-bound on a Context. For example, here 
+      we remove callbacks from the <tt>context</tt> object:
+    </p>
+
+<pre class="runnable">
+context.off('activate', onActivate);
+</pre>
+
+<pre class="runnable">
+context.off('deactivate', onDeactivate);
+</pre>
+  
+    <p id="Context-activate">
+      <b class="header">activate</b><code>context.activate()</code>
+      <br />
+      Activating a Context is done by calling the <tt>activate</tt> method:
+    </p>
+
+<pre class="runnable">
+context.activate(); 
+</pre>
+
+    <p id="Context-deactivate">
+      <b class="header">deactivate</b><code>context.deactivate()</code>
+      <br />
+      Deactivating a Context is done by calling the <tt>deactivate</tt> method:
+    </p>
+
+<pre class="runnable">
+context.deactivate(); 
+</pre>
+
+    <p id="Context-adapt">
+      <b class="header">adapt</b><code>context.adapt(object, trait)</code>
+      <br />
+      A Context can store adaptations by calling <tt>adapt</tt> on the Context, 
+      and passing the <tt>object</tt> to be adapted and the adaptation as 
+      a <tt>trait</tt>.
+      <br /><br />
+
+      <i>Note:</i> <b>Traits</b> are <i>composable units of code reuse</i>. 
+      We use <b>trait as an adaptation</b>, as it groups together all the 
+      methods and properties that exhibit the context-dependent behavior for 
+      the adapted object. In addition, conflicts for adapted objects between 
+      different contexts can be handled in a robust way by traits as name 
+      clashes (conflicting properties) must be <b>explicitly</b> resolved by a
+      composing entity. More about traits can be learned at 
+      <a href="http://traitsjs.org">traitsjs.org</a>, which is the Javascript 
+      implementation Cop.js uses for manipulating traits.
+    </p>
+
+    <p>
+      Suppose we have the following object:
+    </p>
+
+<pre class="runnable">
+object = {
+  greet: function() {
+    alert("Normal behavior."); 
+  }
+};
+</pre>    
+
+    <p>
+      To provide an adaptation for the <tt>context</tt> object we have to do the
+      following:
+    </p>
+
+<pre class="runnable">
+context.adapt(object, Trait({
+  greet: function() { 
+    // this._super.initScreen();
+    alert("Context adapted behavior."); 
+  }
+}));
+</pre>
+
+    <p>
+      However, in order to see the context-dependent behavior of <tt>greet()</tt> we must first create a ContextManager instance, pass it the <tt>context</tt> objects, and then <tt>start</tt> the instance.
+    </p>
+
+    <h2 id="ContextManager">Cop.ContextManager</h2>
+
+    <p>
+      There should be only <i>one</i> <b>ContextManager</b> in the hole system. 
+      Upon creation, all Context objects should be provided along with known
+      relations between contexts.
+      <i>Note</i>: relations are not implemented for now.
+    </p>
+    <p>
+      Here is an example of creating the ContextManager:
+    </p>
+
+<pre class="runnable">
+contextManager = new Cop.ContextManager({
+  contexts: [context],
+  relations: {}
+});
+</pre>
+
+    <p id="ContextManager-start">
+      <b class="header">start</b><code>start()</code>
+      <br />
+      The ContextManager, once created needs to be <i>started</i> in order to
+      let <i>objects acquire traits</i>. As a result, objects can exhibit 
+      context-dependent behavior.
+    </p>
+
+<pre class="runnable">
+contextManager.start();
+</pre>
+
+    <p>
+      For example, in order to see the modified behavior for 
+      <tt>object.greet()</tt> the following steps must be followed:
+      <ul>
+        <li>create the <tt>object</tt></li>
+        <li>create the <tt>context</tt></li>
+        <li>declare the <i>adaptation</i> for the adapted <tt>object</tt></li>
+        <li>create the <tt>contextManager</tt> by passing it the <tt>context</tt></li>
+        <li><tt>start</tt> the <tt>contextManager</tt></li>
+        <li><tt>activate</tt> the <tt>context</tt></li>
+        <li>call <tt>object.greet()</tt> bellow</li>
+      </ul>
+    </p>
+
+<pre class="runnable">
+object.greet();
+</pre>
+
+    <p id="ContextManager-resolveConflict">
+      <b class="header">resolveConflict</b><code>resolveConflict(object, contexts, callback)</code>
+      <br />
+      Objects can have different traits for different contexts. These traits
+      may easily be in conflict if they provide the <i>same</i> property name
+      or method name for the same object.
+      <br />
+      <br />
+      The ContextManager provides a mechanism for resolving a conflict
+      at runtime between one or more traits for any adapted object, by calling the <tt>resolveConflict</tt> method and passing to it:
+      <ul>
+        <li>the <tt>object</tt> that has to be resolved</li> 
+        <li>the <tt>contexts</tt> that are in conflict when active for the adapted object</li>
+        <li>a <tt>callback</tt> that knows how to resolve the conflict</li>
+      </ul>
+      The <tt>callback</tt> is invoked when the conflict occurs, and the
+      ContextManager it passes the <tt>traits</tt> that are in conflict for 
+      the adapted object, and expects to receive a conflict-free trait back.
+    </p>
+
+    <p>
+    For example, we might have an object <tt>MYAPP</tt>, and two contexts
+    <tt>batteryLow</tt> and <tt>offline</tt>, that declare two adaptations for
+    the <tt>MYAPP</tt> object for the same <tt>initScreen</tt> method:
+    </p>
+
+<pre>
+MYAPP = {
+  initScreen: function() {
+    alert("Normal initialization."); 
+  }
+};
+
+batteryLow.adapt(MYAPP, Trait({
+  initScreen: function() { 
+    // this._super.initScreen();
+    alert("Low battery initialization."); 
+  }
+}));
+
+offline.adapt(MYAPP, Trait({
+  initScreen: function() { 
+    // this._super.initScreen();
+    alert("No network initialization."); 
+  }
+}));
+</pre>
+
+    <p>        
+      Resolving the conflict that is generated when the two contexts will
+      be active requires using the <tt>resolveConflict</tt> functionality
+      on the ContextManager as follows:
+    </p>
+
+<pre>
+contextManager.resolveConflict(MYAPP, [batteryLow, offline], 
+function(batteryLowT, offlineT) {
+  return Trait.compose(
+    Trait.resolve({initScreen: 'initScreenBatteryLow'}, 
+                  batteryLowT), 
+    Trait.resolve({initScreen: 'initScreenOffline'}, 
+                  offlineT),
+    Trait({
+      initScreen: function() {
+        alert("Running offline with low battery.");
+        this.initScreenBatteryLow();
+        this.initScreenOffline();
+      }
+    })
+  );
+});
+</pre>
+
+    <h2 id="Examples">Examples</h2>
+
+    <h2 id="examples-contextsdemo">Contexts demo</h2>
+
+    <p>
+      <a href="examples/contexts/demo">Contexts demo</a> is were you can begin
+      your first steps towards learning more about Cop.js. 
+      Thanks to <a href="http://codemirror.net/">CodeMirror2</a> you can write and run a few lines of code that use contexts directly in the browser. 
+    </p>
+
+    <div style="text-align: center;">
+      <a href="examples/contexts/demo.html">
+        <img src="docs/images/demo.png" alt="Contexts demo" class="example_image" />
+      </a>
+    </div>
+
+    <h2 id="examples-ciclami">CiclaMi</h2>
+
+    <p> 
+      <a href="http://colmarius.github.com/ciclami/">CiclaMi</a> is an 
+      Android hybrid app that <i>will</i> serve as a test bed for Cop.js.
+      Around mid June CiclaMi will be refactored with Cop.js and will have a tag released.
+    </p>
+
+    <div style="text-align: center;">
+      <a href="http://colmarius.github.com/ciclami/">
+        <img src="docs/images/ciclami.png" alt="CiclaMi" class="example_image" />
+      </a>
+    </div>
+
+    <h2 id="changelog">Change Log</h2>
+
+    <b class="header">0.1.0</b> &mdash; <small><i>May 21, 2012</i></small><br />
+      Initial release of Cop.js library.
+    </p>
+    
+    <table>
+      <tr>
+        <td>
+          <a href="http://released.info.ucl.ac.be/" title="The RELEASeD Laboratory" style="background:none;">
+            <img src="docs/images/released.png" alt="The RELEASeD Laboratory" style="position:relative;" />
+          </a>
+        </td>
+        <td>
+          <a href="https://adapt-lab.dico.unimi.it/" title="ADAPT Lab." style="background:none;">
+            <img src="docs/images/adapt.png" alt="ADAPT Lab." style="position:relative;" />
+          </a>
+        </td>
+      </tr>
+    </table>
+
+  </div>
+
+</div>
+
+  <script src="test/vendor/underscore-1.3.1.js"></script>
+  <script src="test/vendor/jquery-1.7.1.js"></script>
+  <script src="test/vendor/json2.js"></script>
+  <script src="test/vendor/backbone-0.9.1.js"></script>
+  <script src="test/vendor/traits-0.4.js"></script>
+  <script src="cop.js"></script>
+
+  <script>
+    // Set up the "play" buttons for each runnable code example.
+    $(function() {
+      $('.runnable').each(function() {
+        var code = this;
+        var button = '<div class="run" title="Run"></div>';
+        $(button).insertBefore(code).bind('click', function(){
+          eval($(code).text());
+        });
+      });
+    });
+  </script>
+
+</body>
+</html>
