@@ -34,6 +34,9 @@
       .CodeMirror-focused span.CodeMirror-matchhighlight { 
         background: #e7e4ff; !important 
       }
+      .cm-s-default {
+        word-wrap: break-word;
+      }
     </style>
   </head>
   <body>
@@ -124,7 +127,12 @@ cm.resolveConflict(MYAPP, [offline, noGPS, batteryLow], function(offlineT, noGPS
   );
 });
 
-cm.start(); // now contexts are initialized and objects are composed accordingly
+try {
+  cm.start(); // now contexts are initialized and objects are composed accordingly
+}
+catch (err) {
+  print("Error: " + err.message + "\n"); 
+}
 
 MYAPP.initScreen();
     </textarea></br>
@@ -133,7 +141,7 @@ MYAPP.initScreen();
 
     <p>
       <i>Some hints</i>: press <strong>ctrl-space</strong> to activate autocompletion; 
-      double-click on select to <strong>highlight</strong> matches of selected text.
+      double-click to <strong>highlight</strong> matches of selected text.
     </p>
 
     <script>
