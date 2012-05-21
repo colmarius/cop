@@ -77,11 +77,11 @@
   //
   _.extend(Cop.Context.prototype, Backbone.Events, {
 
-  	// The `initialize` method should provide logic to read some data
-  	// from the system and then invoke either the `activate` or 
-  	// `deactivate` methods on the context instance.
-  	// The ContextManager is created with a set of contexts and it 
-  	// uses the `initialize` method to perform context initialization.
+    // The `initialize` method should provide logic to read some data
+    // from the system and then invoke either the `activate` or 
+    // `deactivate` methods on the context instance.
+    // The ContextManager is created with a set of contexts and it 
+    // uses the `initialize` method to perform context initialization.
     initialize: function() {},
 
     // FUTURE: has no role for now.
@@ -191,7 +191,7 @@
   // to trigger the *start* and *end* of contexts recomposition.
   _.extend(ContextManager.prototype, Backbone.Events, {
 
-  	// Performs ContextManager initialization. 
+    // Performs ContextManager initialization. 
     //
     // *Note*: From here on, the ContextManager is notified about a Context's 
     // *activation* and *deactivation*. In reaction to that, 
@@ -251,23 +251,23 @@
     // be active requires using the `resolveConflict` funcitonality
     // on the ContextManager:
     //
-		//		contextManager.resolveConflict(MYAPP, [batteryLow, offline], 
-		//			function(batteryLowT, offlineT) {
-		//				return Trait.compose(
-		//					Trait.resolve({initScreen: 'initScreenBatteryLow'}, 
-		//												batteryLowT), 
-		//					Trait.resolve({initScreen: 'initScreenOffline'}, 
-		//												offlineT),
-		//					Trait({
-		//						initScreen: function() {
-		//							alert("Running offline with low battery.");
-		//							this.initScreenBatteryLow();
-		//							this.initScreenOffline();
-		//						}
-		//					})
-		//				);
-		//			});
-		//
+    //		contextManager.resolveConflict(MYAPP, [batteryLow, offline], 
+    //			function(batteryLowT, offlineT) {
+    //				return Trait.compose(
+    //					Trait.resolve({initScreen: 'initScreenBatteryLow'}, 
+    //												batteryLowT), 
+    //					Trait.resolve({initScreen: 'initScreenOffline'}, 
+    //												offlineT),
+    //					Trait({
+    //						initScreen: function() {
+    //							alert("Running offline with low battery.");
+    //							this.initScreenBatteryLow();
+    //							this.initScreenOffline();
+    //						}
+    //					})
+    //				);
+    //			});
+    //
     resolveConflict: function(object, contexts, getResolvedTrait) {
       var name = getName(contexts, true);
       var records = this.resolvedTraits.lookup(name);
@@ -350,7 +350,7 @@
       _.each(options.contexts, function(context) {
         if (contexts.contains(context.name)) throw new Error("Already registered context: " + context.name + ".");
         else {
-        	// Register each Context object.
+          // Register each Context object.
           contexts.store(context.name, context);
           // Subscribe the ContextManager to each Context's *activate*, 
           // *deactivate* and *adapt* event.
