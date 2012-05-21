@@ -1,0 +1,23 @@
+Context
+=======
+
+The context object is used to store adaptations for objects. 
+
+It should:
+ * have a name (non-empty string), unique among all context objects
+ * have adapted objects
+ * have adapted traits
+ * be able to set an adaptation (a trait) for any object, but not for the global object
+ * be able to get an adaptation (the trait) for an object, if already stored
+
+Attributes
+----------
+
+	`name` the context name as a string
+
+Methods
+-------
+
+	`setAdaptation(object, trait)` receives to parameters the object and the trait and stores them
+
+	`getAdaptation(object)` receives one parameter, the object, and returns the trait for that object or undefined if there is no such adaptation stored
