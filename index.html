@@ -379,9 +379,9 @@ context = new Cop.Context({ name: 'test' });
     </p>
 
 <pre class="runnable">
-function onActivate(context) {
+onActivate = function(context) {
   alert("context '" + context.name + "' is now active");
-}
+};
 context.on('activate', onActivate);
 </pre>
 
@@ -390,9 +390,9 @@ context.on('activate', onActivate);
     </p>
 
 <pre class="runnable">
-function onDeactivate(context) {
+onDeactivate = function(context) {
   alert("context '" + context.name + "' is no more active");
-}
+};
 context.on('deactivate', onDeactivate);
 </pre>
 
