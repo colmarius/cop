@@ -40,105 +40,17 @@
     </style>
   </head>
   <body>
-    <h1>Code and Play: Contexts demo</h1>
-    <textarea id="code" name="code">
-var batteryLevel = 100;
-var connectedToInternet = true;
-var gpsAvailable = true;
-
-var MYAPP = {
-  initScreen: function() {
-    print("MYAPP initialized normally.");
-  }
-};
-
-var batteryLow = new Cop.Context({
-  name: 'batteryLow',
-  initialize: function() {
-    if (batteryLevel <= 30) this.activate();
-  }
-});
-
-var offline = new Cop.Context({
-  name: 'offline',
-  initialize: function() {
-    if (connectedToInternet == false) this.activate();
-  }
-});
-
-var noGPS = new Cop.Context({
-  name: 'noGPS',
-  initialize: function() {
-    if (gpsAvailable === false) this.activate();
-  }
-});
-
-var cm = new Cop.ContextManager({
-  contexts: [batteryLow, offline, noGPS],
-  relations: {}
-});
-
-batteryLow.adapt(MYAPP, Trait({
-  initScreen: function() {
-    //this._super.initScreen();
-    print("MYAPP running with low battery.")
-  }
-}));
-
-offline.adapt(MYAPP, Trait({
-  initScreen: function() {
-    print("MYAPP running with no internet connection.");
-  }
-}));
-
-noGPS.adapt(MYAPP, Trait({
-  initScreen: function() {
-    print("MYAPP running with no GPS.");
-  }
-}));
-
-cm.resolveConflict(MYAPP, [offline, batteryLow], function(offlineT, batteryLowT) {
-  return Trait.compose(
-    Trait.resolve({initScreen: 'initScreenBatteryLow'}, batteryLowT), 
-    Trait.resolve({initScreen: 'initScreenOffline'}, offlineT),
-    Trait({
-      initScreen: function() {
-        print("MYAPP running 'offline' with 'battery low'.");
-        this.initScreenOffline();
-        this.initScreenBatteryLow();
-      }
-    })
-  );
-});
-
-cm.resolveConflict(MYAPP, [offline, noGPS, batteryLow], function(offlineT, noGPST, batteryLowT) {
-  return Trait.compose(
-    Trait.resolve({initScreen: 'initScreenNoGPS'}, noGPST), 
-    Trait.resolve({initScreen: 'initScreenOffline'}, offlineT),
-    Trait.resolve({initScreen: 'initScreenBatteryLow'}, batteryLowT), 
-    Trait({
-      initScreen: function() {
-        print("MYAPP running 'offline', with 'battery low', and 'no GPS'.");
-        this.initScreenBatteryLow();
-        this.initScreenNoGPS();
-        this.initScreenOffline();
-      }
-    })
-  );
-});
-
-try {
-  cm.start(); // now contexts are initialized and objects are composed accordingly
-}
-catch (err) {
-  print("Error: " + err.message + "\n"); 
-}
-
-MYAPP.initScreen();
-    </textarea></br>
-    <button onclick="doRun();">Run!</button>
+    <h1>Code and Play: Contexts demo
+    </h1>
+    <textarea id="code" name="code"></textarea>
+    <p>
+      <button onclick="doRun();">Run!</button>
+      <select id="demo" onchange="loadDemo();">
+        <option>intro.js</option>
+        <option selected="true">tracer.js</option>
+      </select>
+    </p>
     <pre id="output" class="cm-s-default"></pre>
-
     <p>
       <i>Some hints</i>: press <strong>ctrl-space</strong> to activate autocompletion; 
       double-click to <strong>highlight</strong> matches of selected text.
@@ -146,9 +58,30 @@ MYAPP.initScreen();
 
     <script>
       var messages = [];
-      function print(line) { messages.push(line); };
+      function print(line) { messages.push(line); }
+      function clearMessages() { 
+        messages = []; 
+        document.getElementById("output").innerHTML = '';
+      }
+      function loadDemo() {
+        function makeHttpRequest() {
+          try {return new XMLHttpRequest();}
+          catch (error) {}
+          try {return new ActiveXObject("Msxml2.XMLHTTP");}
+          catch (error) {}
+          try {return new ActiveXObject("Microsoft.XMLHTTP");}
+          catch (error) {}
+          throw new Error("Could not create HTTP request object.");
+        }
+        demo = document.getElementById('demo').value;
+        var request = makeHttpRequest();
+        request.open("GET", "demo/" + demo, false);
+        request.send(null);
+        editor.setValue(request.responseText);
+        clearMessages();
+      }
       function doRun() {
-        messages = [];
+        clearMessages();
         eval(editor.getValue());
         document.getElementById("output").innerHTML = messages.join("\n");
       }
@@ -163,6 +96,7 @@ MYAPP.initScreen();
           editor.matchHighlight("CodeMirror-matchhighlight");
         }
       });
+      loadDemo();
     </script>
   </body>
 </html>
