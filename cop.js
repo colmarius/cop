@@ -414,45 +414,41 @@
       var conflicts;
       var contexts  = options.contexts;
       var relations = options.relations;
-      if (!this.recomposing) {
-        this.recomposing = true;
-        contexts = this._resolveDependencies(contexts, relations);
-        log("Contexts with resolved dependencies: ", contexts);
-        adaptations = this._getAdaptations(contexts);
-        log("Uncomposed adaptations: ", adaptations);
-        this._compose(adaptations);
-        log("Composed adaptations: ", adaptations);
-        // Filter conflicting adaptations.
-        conflicts = _.filter(adaptations, function(adaptation) {
-          return adaptation.hasConflict;
+      contexts = this._resolveDependencies(contexts, relations);
+      log("Contexts with resolved dependencies: ", contexts);
+      adaptations = this._getAdaptations(contexts);
+      log("Uncomposed adaptations: ", adaptations);
+      this._compose(adaptations);
+      log("Composed adaptations: ", adaptations);
+      // Filter conflicting adaptations.
+      conflicts = _.filter(adaptations, function(adaptation) {
+        return adaptation.hasConflict;
+      });
+      if (conflicts.length > 0) {
+        // Log unresolved conflicts and throw conflict errors.
+        _.each(conflicts, function(conflict) {
+          var contexts     = getName(conflict.contexts);
+          var errorMessage = conflict.errorMessage;
+          var object       = conflict.object;
+          log("Contexts ", contexts, ", object: ", object, ", conflict: ", errorMessage);
+          throw new Error("Contexts " + contexts + " have unresolved conflict for object: " + object + " with error message: " + errorMessage);
         });
-        if (conflicts.length > 0) {
-          // Log unresolved conflicts and throw conflict errors.
-          _.each(conflicts, function(conflict) {
-            var contexts     = getName(conflict.contexts);
-            var errorMessage = conflict.errorMessage;
-            var object       = conflict.object;
-            log("Contexts ", contexts, ", object: ", object, ", conflict: ", errorMessage);
-            throw new Error("Contexts " + contexts + " have unresolved conflict for object: " + object + " with error message: " + errorMessage);
-          });
-          // Restore contexts as before recomposition.
-          contexts = options.contexts;
-        }
-        else {          
-          log("No conflicts detected.");
-          // If there are no conflicts install adaptations.
-          this._install(adaptations);
-          // Compute new contexts.
-          contexts = {
-            active       : _.difference(_.union(contexts.active, contexts.toActivate), contexts.toDeactivate),
-            toActivate   : [],
-            toDeactivate : []
-          };
-        }
-        // Signal that context recomposition has finished and pass *new contexts*.
-        this.contextManager.trigger("recompose:end", contexts);
-        this.recomposing = false;
+        // Restore contexts as before recomposition.
+        contexts = options.contexts;
       }
+      else {          
+        log("No conflicts detected.");
+        // If there are no conflicts install adaptations.
+        this._install(adaptations);
+        // Compute new contexts.
+        contexts = {
+          active       : _.difference(_.union(contexts.active, contexts.toActivate), contexts.toDeactivate),
+          toActivate   : [],
+          toDeactivate : []
+        };
+      }
+      // Signal that context recomposition has finished and pass *new contexts*.
+      this.contextManager.trigger("recompose:end", contexts);
     },
 
     // **TODO**: How relations impact on contexts (de) activation.
