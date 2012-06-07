@@ -200,7 +200,7 @@
   <div id="sidebar" class="interface">
 
     <a class="toc_title" href="#">
-      Cop.js <span class="version">(0.1.0)</span>
+      Cop.js <span class="version">(0.1.1)</span>
     </a>
     <ul class="toc_section">
       <li>&raquo; <a href="http://github.com/colmarius/cop">GitHub Repository</a></li>
@@ -282,11 +282,11 @@
 
     <table>
       <tr>
-        <td><a class="punch" href="cop.js">Development Version (0.1.0)</a></td>
+        <td><a class="punch" href="cop.js">Development Version (0.1.1)</a></td>
         <td><i>26kb, Full source, lots of comments</i></td>
       </tr>
       <tr>
-        <td><a class="punch" href="cop-min.js">Production Version (0.1.0)</a></td>
+        <td><a class="punch" href="cop-min.js">Production Version (0.1.1)</a></td>
         <td><i>7kb, Packed and gzipped</i></td>
       </tr>
     </table>
@@ -530,7 +530,7 @@ object.greet();
 </pre>
 
     <p id="ContextManager-resolveConflict">
-      <b class="header">resolveConflict</b><code>resolveConflict(object, contexts, callback)</code>
+      <b class="header">resolveConflict</b><code>resolveConflict(object, contexts, [callback])</code>
       <br />
       Objects can have different traits for different contexts. These traits
       may easily be in conflict if they provide the <i>same</i> property name
@@ -542,11 +542,23 @@ object.greet();
       <ul>
         <li>the <tt>object</tt> that has to be resolved</li> 
         <li>the <tt>contexts</tt> that are in conflict when active for the adapted object</li>
-        <li>a <tt>callback</tt> that knows how to resolve the conflict</li>
+        <li>a <tt>callback</tt> is <b>optional</b>, and knows how to resolve the conflict</li>
       </ul>
+      There are two strategies for resolving a conflict:
+      <br />
+      <br />
+      <b>Strategy 1:</b> the <tt>callback</tt> exists:
+      <br />
+      <br />
       The <tt>callback</tt> is invoked when the conflict occurs, and the
       ContextManager it passes the <tt>traits</tt> that are in conflict for 
       the adapted object, and expects to receive a conflict-free trait back.
+      <br />
+      <br />
+      <b>Strategy 2:</b> no <tt>callback</tt> was provided:
+      <br />
+      <br />
+      TODO description...
     </p>
 
     <p>
@@ -633,6 +645,10 @@ function(batteryLowT, offlineT) {
     </div>
 
     <h2 id="changelog">Change Log</h2>
+
+    <b class="header">0.1.1</b> &mdash; <small><i>June 7, 2012</i></small><br />
+      ContextManager's <tt>resolveConflict</tt> method now takes <b>optional</b> <tt>callback</tt> for resolving the conflict between adaptations (traits). When <i>no callback</i> is provided, traits will be applied in <b>right to left</b> order, by extending the basic behavior of the adapted object. In this case traits are applied in a <i>mixin-like</i> fashion.
+    </p>
 
     <b class="header">0.1.0</b> &mdash; <small><i>May 21, 2012</i></small><br />
       Initial release of Cop.js library.
