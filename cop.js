@@ -1,4 +1,4 @@
-//     Cop.js 0.1.0
+//     Cop.js 0.1.1
 //
 //     (c) 2012 Marius Colacioiu
 //     Cop library may be freely distributed under Apache 2.0 license.
@@ -22,7 +22,7 @@
     Cop = root.Cop = {};
 
   // Current version of the library.
-  Cop.VERSION = '0.1.0';
+  Cop.VERSION = '0.1.1';
 
   // Require Underscore, if we're on the server, and it's not already present.
   var _ = root._;
@@ -75,7 +75,7 @@
   //			alert("battery is back to normal");
   //		});
   //
-  _.extend(Cop.Context.prototype, Backbone.Events, {
+  _.extend(Context.prototype, Backbone.Events, {
 
     // The `initialize` method should provide logic to read some data
     // from the system and then invoke either the `activate` or 
@@ -202,8 +202,8 @@
       var self = this;
       this.contexts.registered.each(function(context) {
         log("Initializing context '" + context.name + "'.");
+        // Store original behavior for objects that already have adaptations.
         if (context.adaptations.length > 0) {
-          // Store original behavior for objects that already have adaptations.
           _.each(context.adaptations, function(adaptation) {
             self._onAdapt(adaptation.object);
           }); 
@@ -321,7 +321,7 @@
     // contexts.
     _onRecomposeStart: function() {
       var contexts = this.contexts;
-      log("Context recomposition started:");
+      log("Contexts recomposition started:");
       log("Contexts active: [" + getName(contexts.active) + "], to activate: [" + getName(contexts.toActivate) + "], to deactivate: [" + getName(contexts.toDeactivate) + "].");
       this.composer.recompose({
         contexts:  this.contexts,
@@ -334,7 +334,7 @@
     // ContextManager.
     _onRecomposeEnd: function(contexts) {
       this.contexts = contexts;
-      log("Context recompositon ended!");
+      log("Contexts recompositon ended!");
       log("Contexts active: [" + getName(contexts.active) + "], to activate: [" + getName(contexts.toActivate) + "], to deactivate: [" + getName(contexts.toDeactivate) + "].");
     },
 
@@ -416,7 +416,6 @@
       var relations = options.relations;
       if (!this.recomposing) {
         this.recomposing = true;
-        log("Contexts Recomposition Started:");
         contexts = this._resolveDependencies(contexts, relations);
         log("Contexts with resolved dependencies: ", contexts);
         adaptations = this._getAdaptations(contexts);
@@ -453,9 +452,7 @@
         // Signal that context recomposition has finished and pass *new contexts*.
         this.contextManager.trigger("recompose:end", contexts);
         this.recomposing = false;
-        log("Contexts Recomposition Ended!");
       }
-      else log("ALREADY RECOMPOSING CONTEXTS.");
     },
 
     // **TODO**: How relations impact on contexts (de) activation.
@@ -571,17 +568,37 @@
             var index = _.indexOf(adaptation.contexts, context);
             orderedTraits.push(adaptation.traits[index]);
           });
-          // Call `getResolvedTrait` callback to obtain the conflict-free 
-          // trait.
-          //
-          // **TODO**: Check if `resolvedTrait` is *really conflict free*! 
-          // At least it should be.
-          var resolvedTrait = record.getResolvedTrait.apply(null, orderedTraits);
-          // Set conflict as resolved.
-          adaptation.composedTrait = resolvedTrait;
+          // **Strategy 1**: Do we have the `getResolvedTrait` callback?
+          if (record.getResolvedTrait) {
+            // Call `getResolvedTrait` callback to obtain the conflict-free 
+            // trait.
+            //
+            // **TODO**: Check if `resolvedTrait` is *really conflict free*! 
+            // At least it should be.
+            var resolvedTrait = record.getResolvedTrait.apply(null, orderedTraits);
+            // Set conflict as resolved.
+            adaptation.composedTrait = resolvedTrait;
+          } 
+          // **Strategy 2**: No callback provided, so apply traits like mixins. 
+          else {
+            // Get object's *basic behavior*.
+            var superObject    = _.clone(adaptation.originalObject);
+            var composedObject = null;
+            // Extend basic behavior with traits applied on object 
+            // from right to left order.
+            _.each(orderedTraits.reverse(), function(trait) {
+              var _super = {};
+              _super[superName] = superObject;
+              composedObject = Object.create(superObject, Trait.compose(trait, Trait(_super)));
+              superObject = composedObject;
+            });
+            delete adaptation.composedTrait;
+            // This `composedObject` has the behavior of the *adapted object* 
+            // for the current set of *active contexts*.
+            adaptation.composedObject = composedObject;
+          }
           delete adaptation.hasConflict;
           delete adaptation.errorMessage;
-          adaptation.resolved = true;
         }
       }
       // For each `adaptation`:
@@ -590,15 +607,15 @@
         adaptation.composedTrait = Trait.compose.apply(null, adaptation.traits);
         // Check adaptation for *conflicts*.
         checkConflicts(adaptation);
+        // Try to *resolve* the conflict if any.
         if (adaptation.hasConflict) 
-          // Try to *resolve* the conflict if any.
           resolve(adaptation);
-        if (adaptation.hasConflict && !adaptation.resolved) {
-          // If not resolved log the conflict, because a `resolvedTrait` 
-          // record is *missing* and should have been provided.
+        // If not resolved log the conflict, because a `resolvedTrait` 
+        // record is *missing* and should have been provided.
+        if (adaptation.hasConflict) {
           log("No resolved trait provided for object: ", adaptation.object, " and contexts: ", getName(adaptation.contexts));
         }
-        else {
+        else if (adaptation.composedTrait) {
           // If there are no conflicts:
           var refToSuper = {};
           refToSuper[superName] = adaptation.originalObject;
