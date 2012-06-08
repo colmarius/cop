@@ -1,7 +1,7 @@
 var mustTrace   = true;
 var mustProfile = true;
 
-var MYAPP = {
+MYAPP = {
   initScreen: function() { var i=0; while (i < 1000000) i++; },
   init: function() { this.initScreen(); },
   run:  function() { this.init(); }
@@ -24,12 +24,12 @@ var profiler = new Cop.Context({
 tracer.trace = function(options) {
   var adapted = {};
   options.methods || (options.methods = getMethods(options.object));
-  forEach(options.methods, function(name) {
-    adapted[name] = function() {
+  forEach(options.methods, function(method) {
+    adapted[method] = function() {
       var start = new Date().getMilliseconds();
-      var result = this._super[name].apply(options.object, arguments);
+      var result = this._super[method].apply(this._super, arguments);
       var time = new Date().getMilliseconds() - start;
-      print(options.name + "." + name + " took " + (time/1000) + " seconds to run.");
+      print(options.name + "." + method + " took " + (time/1000) + " seconds to run.");
       return result;
     };
   });
@@ -40,12 +40,12 @@ profiler.profile = function(options) {
   var adapted = {};
   var ident = '';
   options.methods || (options.methods = getMethods(options.object));
-  forEach(options.methods, function(name) {
-    adapted[name] = function() {
+  forEach(options.methods, function(method) {
+    adapted[method] = function() {
       ident += '  ';
-      print("Entering: " + ident + options.name + "." + name);
-      var result = this._super[name].apply(options.object, arguments);
-      print("Exiting:  " + ident + options.name + "." + name);
+      print("Entering: " + ident + options.name + "." + method);
+      var result = this._super[method].apply(this._super, arguments);
+      print("Exiting:  " + ident + options.name + "." + method);
       ident = ident.slice(0, ident.length - 2);
       return result;
     };
@@ -61,6 +61,8 @@ var cm = new Cop.ContextManager({
   contexts: [tracer, profiler],
   relations: {}
 });
+
+// cm.resolveConflict(MYAPP, [profiler, tracer]);
 
 cm.resolveConflict(MYAPP, [tracer, profiler], function(tracerT, profilerT) {
   return Trait.compose(
@@ -87,12 +89,7 @@ cm.resolveConflict(MYAPP, [tracer, profiler], function(tracerT, profilerT) {
     }));
 });
 
-try {
-  cm.start(); // now contexts are initialized and objects are composed accordingly
-}
-catch (err) {
-  print("Error: " + err.message + "\n"); 
-}
+cm.start(); // now contexts are initialized and objects are composed accordingly
 
 MYAPP.run();
 
