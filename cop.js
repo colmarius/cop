@@ -42,22 +42,8 @@
   // Cop.Context
   // -----------
 
-  // A Context object reifies the presence or absence of a situation
+  // A **Context** object *reifies* the presence or absence of a *situation*
   // while an application executes. 
-  // Follows real world example that uses the Phonegap API to reify as
-  // a context the *low battery* situation on a mobile device.
-  //
-  //		var batteryLow = new Cop.Context({
-  //			name: 'batteryLow',
-  //			initialize: function() {
-  //				window.addEventListener("batterylow", onBatteryLow, false);
-  //				function onBatteryLow(info) {
-  //					if (info.level <= 30) this.activate();
-  //					else this.deactivate();
-  //				}
-  //			}
-  //		});
-  //
   var Context = Cop.Context = function(options) {
     this._configure(options || {});
   };
@@ -66,15 +52,6 @@
   // `on`, `off` and `trigger`. In particular, `on` and `off`
   // methods can be used to subscribe and unsubscribe **callbacks** 
   // on the *activate* and *deactivate* events.
-  //
-  //		batteryLow.on('activate', function() {
-  //			alert("battery is now low");
-  //		});
-  //
-  //		batteryLow.on('deactivate', function() {
-  //			alert("battery is back to normal");
-  //		});
-  //
   _.extend(Context.prototype, Backbone.Events, {
 
     // The `initialize` method should provide logic to read some data
@@ -84,13 +61,7 @@
     // uses the `initialize` method to perform context initialization.
     initialize: function() {},
 
-    // FUTURE: has no role for now.
-    destroy: function() {},
-
-    // Activating a Context is done by calling the `activate` method:
-    //
-    //		batteryLow.activate(); 
-    // 		
+    // Activating a Context is done by calling the `activate` method.
     activate: function() {
       if (!this.active) {
         this.active = true;
@@ -98,11 +69,7 @@
       }
     },
 
-    // Analogously, deactivating a Context is done by calling the 
-    // `deactivate` method:
-    //
-    //		batteryLow.deactivate(); 
-    // 	
+    // Deactivating a Context is done by calling the `deactivate` method.
     deactivate: function() {
       if (this.active) {
         this.active = false;
@@ -117,23 +84,7 @@
     // trait is used as an adaptation: one which exhibits context-dependent 
     // behavior for a single object. A trait is used to group a set of methods 
     // and properties that can be acquired by an adapted object, at runtime, 
-    // when a context is active.
-    //
-    //		MYAPP = {
-    //			initScreen: function() {
-    //				alert("Normal initialization."); 
-    //			},
-    //			...
-    //		};
-    //
-    //		batteryLow.adapt(MYAPP, Trait({
-    //			initScreen: function() { 
-    //				// this._super.initScreen();
-    //				alert("Low battery initialization."); 
-    //			},
-    //			...
-    //		}));
-    //		
+    // when the context is active.
     adapt: function(object, trait) {
       if (object === root) throw new Error("Cannot adapt the global object.");
       if (!_.isObject(object)) throw new Error("Only objects can be adapted.");
@@ -142,8 +93,7 @@
       this.trigger("adapt", object);
     },
 
-    // Returns the *adaptation* of the `object` 
-    // if one was previously stored.
+    // Returns the *adaptation* for the `object` if one was previously stored.
     getAdaptation: function(object) {
       return _.find(this.adaptations, function(adapted) {
         return adapted.object === object;
@@ -151,16 +101,13 @@
     },
 
     // Performs the initial configuration of a Context from a set of 
-    // `options`. All contexts have a *name*, an *active* state, a set 
-    // of *adaptations*, and optionally an *initialize* and a *destroy* 
-    // function.
+    // `options`. All contexts must have a *name*.
     _configure: function(options) {      
       if (!options.name || options.name === "") throw new Error("Context object must have a name.");
       this.active      = false;
       this.adaptations = [];
       this.name        = options.name;
       if (options.initialize) this.initialize = options.initialize;
-      if (options.destroy)    this.destroy    = options.destroy;
     }
 
   });
@@ -168,18 +115,9 @@
   // Cop.ContextManager
   // ------------------
   
-  // There should be one ContextManager in the hole system. 
+  // There should be *just one* ContextManager in the hole system. 
   // Upon creation should be provided with all known Context objects
-  // and all possible relations between them.
-  //
-  //		var batteryLow = new Cop.Context({name: 'batteryLow'});
-  //		var offline    = new Cop.Context({name: 'offline'});
-  //		
-  //		var contextManager = new Cop.ContextManager({
-  //			contexts: [batteryLow, offline],
-  //			relations: {}
-  //		});
-  //
+  // and all possible relations.
   var ContextManager = Cop.ContextManager = function(options) {
     this._configure(options || {});
   };
@@ -193,10 +131,11 @@
 
     // Performs ContextManager initialization. 
     //
-    // *Note*: From here on, the ContextManager is notified about a Context's 
-    // *activation* and *deactivation*. In reaction to that, 
-    // it will start changing the behavior of adapted objects, 
-    // by making them acquire traits (context-dependent behavior).
+    // *Note*: Once started, the ContextManager is notified when a Context 
+    // is *activated*, *deactivated* or *adapts* an object. In reaction to 
+    // a Context activation / deactivation the ContextManager recomposes 
+    // dynamically the behavior of adapted objects by making them acquire 
+    // traits at runtime.
     start: function() {
       log("Context manager is preparing to start up.");
       var self = this;
@@ -217,57 +156,13 @@
       log("Context manager has started up.");
     },
 
-    // Objects can have different traits for different contexts. These traits
-    // may easilly conflict if they provide the same property or method name. 
-    // A mechanism for resolving conflicts between traits may be easily provided.
-    // 
-    // Recall the `MYAPP` object:
-    //
-    //		MYAPP = {
-    //			initScreen: function() {
-    //				alert("Normal initialization."); 
-    //			}
-    //		};
-    //
-    // Let's supose that the contexts `batteryLow` and `offline`
-    // have two adaptations for the `MYAPP` object for the same method:
-    //
-    //
-    //		batteryLow.adapt(MYAPP, Trait({
-    //			initScreen: function() { 
-    //				// this._super.initScreen();
-    //				alert("Low battery initialization."); 
-    //			}
-    //		}));
-    //		
-    //		offline.adapt(MYAPP, Trait({
-    //			initScreen: function() { 
-    //				// this._super.initScreen();
-    //				alert("No network initialization."); 
-    //			}
-    //		}));
-    //		
-    // Resolving the conflict generated when the two contexts will
-    // be active requires using the `resolveConflict` funcitonality
-    // on the ContextManager:
-    //
-    //		contextManager.resolveConflict(MYAPP, [batteryLow, offline], 
-    //			function(batteryLowT, offlineT) {
-    //				return Trait.compose(
-    //					Trait.resolve({initScreen: 'initScreenBatteryLow'}, 
-    //												batteryLowT), 
-    //					Trait.resolve({initScreen: 'initScreenOffline'}, 
-    //												offlineT),
-    //					Trait({
-    //						initScreen: function() {
-    //							alert("Running offline with low battery.");
-    //							this.initScreenBatteryLow();
-    //							this.initScreenOffline();
-    //						}
-    //					})
-    //				);
-    //			});
-    //
+    // The `resolveConflict` method is used to solve a possible conflict that 
+    // can happen at runtime between two or more traits for an adapted object. 
+    // The `object` is the adapted object that has traits in conflict for the
+    // contexts in the `contexts` array. `callback` is optional, and receives
+    // the conflicting traits as parameters in the same order as in the 
+    // `contexts` array and is expected to return a resolved conflict-free trait
+    // when invoked.
     resolveConflict: function(object, contexts, getResolvedTrait) {
       var name = getName(contexts, true);
       var records = this.resolvedTraits.lookup(name);
@@ -287,8 +182,8 @@
         });
     },
 
-    // Called each time a Context *adapts* an object. Stores a clone of the 
-    // original object the first time it gets adapted. 
+    // Called each time a Context *adapts* an object. Stores a clone for the 
+    // basic behavior of the object the first time it gets adapted. 
     _onAdapt: function(object) {
       var originalObject = _.find(this.originalObjects, function(original) {
         return original.object === object;
@@ -447,7 +342,8 @@
           toDeactivate : []
         };
       }
-      // Signal that context recomposition has finished and pass *new contexts*.
+      // Signal that context recomposition has finished and pass *new* 
+      // `contexts`.
       this.contextManager.trigger("recompose:end", contexts);
     },
 
@@ -579,7 +475,7 @@
             // **TODO**: Check if `resolvedTrait` is *really conflict free*! 
             // At least it should be.
             var resolvedTrait = record.getResolvedTrait.apply(null, orderedTraits);
-            // Set conflict as resolved.
+            // Set resolved trait on adaptation.
             adaptation.composedTrait = resolvedTrait;
           } 
           // **Strategy 2**: No callback provided, so apply traits like mixins. 
@@ -587,7 +483,7 @@
             // Get object's *basic behavior*.
             var superObject = _.clone(adaptation.originalObject);
             var composedObject = null;
-            // Bind `this` in `superObject` to original object reference 
+            // Bind `this` in `superObject` to the *original* object reference 
             // of the adapted object.
             bindAllMethods(superObject, adaptation.object);
             // Extend basic behavior with traits applied on object 
@@ -621,26 +517,24 @@
         if (adaptation.hasConflict) {
           log("No resolved trait provided for object: ", adaptation.object, " and contexts: ", getName(adaptation.contexts));
         }
+        // Is there a `composedTrait` present? 
+        // If not, there is already a `composedObject` present.
         else if (adaptation.composedTrait) {
-          // If there are no conflicts:
           var _super = {};
           var superObject = _.clone(adaptation.originalObject);
-          // Bind `this` in `superObject` to original object reference 
-          // of the adapted object.
+          // Bind `this` in the `superObject` to *original* object reference 
+          // for the adapted object.
           bindAllMethods(superObject, adaptation.object);
           _super[superName] = superObject;
-          // Add member property to `composedTrait` that is a reference 
-          // to the *original object*.
+          // Recompose trait with reference to the *original object*.
           var composedTrait = Trait.compose(adaptation.composedTrait, Trait(_super));
-          // And create **composed object** from the *original object* clone 
-          // and the conflict-free *composed trait*.
+          // Create composed object.
           adaptation.composedObject = Object.create(superObject, composedTrait);
         }
       });
     },
 
-    // For each adaptation, restore each *adapted object* from the 
-    // *composed object*.
+    // For each adaptation, restore *adapted object* from the *composed object*.
     _install: function(adaptations) {
       function restore(object, fromObject) {
         _.each(_.keys(object), function(key) { delete object[key]; });
