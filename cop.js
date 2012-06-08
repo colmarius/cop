@@ -534,8 +534,15 @@
     _compose: function(adaptations) {
       // Store reference to ContextManager's `resolvedTraits`.
       var resolvedTraits = this.contextManager.resolvedTraits;
+      // Bind `this` reference in all methods in `object` on `self`.
+      function bindAllMethods(object, self) {
+        _.each(object, function(property, name) {
+          if (_.isFunction(property))
+            object[name] = _.bind(property, self);
+        });
+      }
       // Mark adaptation if has conflicts, meaning some required property 
-      // was not provided, or there are properties that are in conflict. 
+      // was not provided, or there are properties that are in conflict.
       function checkConflicts(adaptation) {
         try {
           Trait.create({}, adaptation.composedTrait);
@@ -578,8 +585,11 @@
           // **Strategy 2**: No callback provided, so apply traits like mixins. 
           else {
             // Get object's *basic behavior*.
-            var superObject    = _.clone(adaptation.originalObject);
+            var superObject = _.clone(adaptation.originalObject);
             var composedObject = null;
+            // Bind `this` in `superObject` to original object reference 
+            // of the adapted object.
+            bindAllMethods(superObject, adaptation.object);
             // Extend basic behavior with traits applied on object 
             // from right to left order.
             _.each(orderedTraits.reverse(), function(trait) {
@@ -613,14 +623,18 @@
         }
         else if (adaptation.composedTrait) {
           // If there are no conflicts:
-          var refToSuper = {};
-          refToSuper[superName] = adaptation.originalObject;
+          var _super = {};
+          var superObject = _.clone(adaptation.originalObject);
+          // Bind `this` in `superObject` to original object reference 
+          // of the adapted object.
+          bindAllMethods(superObject, adaptation.object);
+          _super[superName] = superObject;
           // Add member property to `composedTrait` that is a reference 
           // to the *original object*.
-          var composedTrait = Trait.compose(adaptation.composedTrait, Trait(refToSuper));
+          var composedTrait = Trait.compose(adaptation.composedTrait, Trait(_super));
           // And create **composed object** from the *original object* clone 
           // and the conflict-free *composed trait*.
-          adaptation.composedObject = Object.create(adaptation.originalObject, composedTrait);
+          adaptation.composedObject = Object.create(superObject, composedTrait);
         }
       });
     },
