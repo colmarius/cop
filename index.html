@@ -673,10 +673,28 @@ contextManager.resolveConflict(MYAPP, [offline, batteryLow]);
     <h2 id="examples-contextsdemo">Contexts demo</h2>
 
     <p>
-      <a href="examples/contexts/demo">Contexts demo</a> is where you can begin
-      your first steps towards learning more about Cop.js. 
-      Thanks to <a href="http://codemirror.net/">CodeMirror2</a> you can edit
+      <a href="examples/contexts/demo.html">Contexts demo</a> is where you can 
+      begin your first steps towards learning more about Cop.js. 
+      Thanks to <a href="http://codemirror.net/">CodeMirror</a> you can edit
       and run a few lines of code that use contexts directly in the browser. 
+      There are three examples:
+      <ul style="margin-top: 5px;">
+        <li>
+          <b>intro.js</b>: <tt>MYAPP</tt> with <tt>initScreen</tt> method
+          adaptable to <tt>batteryLow</tt>, <tt>offline</tt> and <tt>noGPS</tt>
+          contexts.
+        </li>
+        <li>
+          <b>tracer.js</b>: <tt>MYAPP</tt> has three methods all adaptable to
+          <tt>profiler</tt> and <tt>tracer</tt> contexts.
+        </li>
+        <li>
+          <b>cache_server.js</b>: a <tt>cacheServer</tt> object adaptable to 
+          <tt>Backup</tt>, <tt>Privacy</tt> and <tt>Debug</tt> contexts. The
+          inspiration for this example comes from <a href="http://home.dei.polimi.it/salvaneschi/publications/attach/lang-comparison.pdf">this article</a>.
+        </li>
+      </ul>
+
     </p>
 
     <div style="text-align: center;">
