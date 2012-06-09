@@ -4,19 +4,16 @@ $(document).ready(function() {
 
   test("Context: creation", function() {
     var initializeFunc = function() {};
-    var destroyFunc    = function() {};
 
     var context = new Cop.Context({
       name: 'foo',
-      initialize: initializeFunc,
-      destroy: destroyFunc
+      initialize: initializeFunc
     });
 
     equal(context.name, 'foo', "context name should be the same");
     equal(context.active, false, "context should not be active");
     equal(context.adaptations.length, 0, "context should have no adaptations");
     equal(context.initialize, initializeFunc, "context should have set initialize function correctly");
-    equal(context.destroy, destroyFunc, "context should have set destroy function correctly");
     
     try {
       new Cop.Context();
