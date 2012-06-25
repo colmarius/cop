@@ -1,4 +1,4 @@
-//     Cop.js 0.1.1
+//     Cop.js 0.1.2
 //
 //     (c) 2012 Marius Colacioiu
 //     Cop library may be freely distributed under Apache 2.0 license.
@@ -22,7 +22,7 @@
     Cop = root.Cop = {};
 
   // Current version of the library.
-  Cop.VERSION = '0.1.1';
+  Cop.VERSION = '0.1.2';
 
   // Require Underscore, if we're on the server, and it's not already present.
   var _ = root._;
@@ -483,15 +483,17 @@
             // Get object's *basic behavior*.
             var superObject = _.clone(adaptation.originalObject);
             var composedObject = null;
-            // Bind `this` in `superObject` to the *original* object reference 
-            // of the adapted object.
-            bindAllMethods(superObject, adaptation.object);
             // Extend basic behavior with traits applied on object 
             // from right to left order.
             _.each(orderedTraits.reverse(), function(trait) {
               var _super = {};
               _super[superName] = superObject;
               composedObject = Object.create(superObject, Trait.compose(trait, Trait(_super)));
+              // Bind `this` in all methods of `superObject` on itself.
+              _.each(superObject, function(property, name) {
+                if (_.isFunction(property) && _.has(superObject, name))
+                  superObject[name] = _.bind(property, superObject);
+              });
               superObject = composedObject;
             });
             delete adaptation.composedTrait;
