@@ -483,6 +483,9 @@
             // Get object's *basic behavior*.
             var superObject = _.clone(adaptation.originalObject);
             var composedObject = null;
+            // Bind `this` in `superObject` to the *original* object reference 
+            // of the adapted object.
+            bindAllMethods(superObject, adaptation.object);
             // Extend basic behavior with traits applied on object 
             // from right to left order.
             _.each(orderedTraits.reverse(), function(trait) {
@@ -598,7 +601,7 @@
     var result = _.pluck(contexts, 'name');
     if (ordered) result.sort();
     return result.join(",");
-  };
+  }
   
   // Keep history for sanity reasons.
   var history = ContextManager.history = []; 
