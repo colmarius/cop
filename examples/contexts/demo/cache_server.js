@@ -18,13 +18,13 @@ Debug   = new Cop.Context({name: 'Debug'});
 Backup.adapt(cacheServer, Trait({
   backupValues: {},
   store: function(key, value) {
-    print("Backup:  cacheServer.backupValues[" + key + "] = " + value + ".");
+    print("Backup:  cacheServer.backupValues[" + key + "] = " + value);
     this.backupValues[key] = value;
     this._super.store(key, value);
   },
   backupLookup: function(key) {
     var value = this.backupValues[key];
-    print("Backup:  cacheServer.backupLookup(" + key + ") returned " + value + ".");
+    print("Backup:  cacheServer.backupLookup(" + key + ") returned " + value);
     return value;
   }
 }));
@@ -44,8 +44,8 @@ Privacy.adapt(cacheServer, Trait({
   lookup: function(key) {
     var encryptedValue = this._super.lookup(key);
     if (encryptedValue) {
+      print("Privacy: cacheServer.lookup(" + key + ") returned " + encryptedValue);
       var decryptedValue = this.decrypt(encryptedValue);
-      print("Privacy: cacheServer.lookup(" + encryptedValue + ")");
       return decryptedValue;  
     }
   }
