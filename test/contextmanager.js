@@ -78,21 +78,4 @@ $(document).ready(function() {
 
   });
   
-  test("ContextManager: TODO creation with relations", function() {
-    var cm = new Cop.ContextManager({
-      contexts: [this.a, this.b, this.c],
-      relations: [
-       // TODO
-      ]
-    });
-    
-  });
-
-  test("ContextManager: TODO start", function() {
-
-  });
-    
-  test("ContextManager: TODO resolveConflict", function() {
-
-  });
 });
