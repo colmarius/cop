@@ -65,6 +65,8 @@
     activate: function() {
       if (!this.active) {
         this.active = true;
+        // TODO: logical clock for activation (variable incrementer).
+        this.age    = (new Date()).getTime();
         this.trigger("activate", this);
       }
     },
@@ -73,6 +75,7 @@
     deactivate: function() {
       if (this.active) {
         this.active = false;
+        this.age    = undefined;
         this.trigger("deactivate", this);
       }
     },
@@ -115,6 +118,11 @@
   // Cop.ContextManager
   // ------------------
   
+  // Default context will contain default behavior for objects as traits,
+  // and is always active.
+  var Default = new Cop.Context({name: "Default"});
+  Default.activate(); 
+
   // There should be *just one* ContextManager in the hole system. 
   // Upon creation should be provided with all known Context objects
   // and all possible relations.
@@ -156,44 +164,15 @@
       log("Context manager has started up.");
     },
 
-    // The `resolveConflict` method is used to solve a possible conflict that 
-    // can happen at runtime between two or more traits for an adapted object. 
-    // The `object` is the adapted object that has traits in conflict for the
-    // contexts in the `contexts` array. `callback` is optional, and receives
-    // the conflicting traits as parameters in the same order as in the 
-    // `contexts` array and is expected to return a resolved conflict-free trait
-    // when invoked.
-    resolveConflict: function(object, contexts, getResolvedTrait) {
-      var name = getName(contexts, true);
-      var records = this.resolvedTraits.lookup(name);
-      if (!records) {
-        records = [];
-        this.resolvedTraits.store(name, records);
-      }
-      var record = _.find(records, function(record) {
-        return record.object === object;
-      });
-      if (record) throw new Error("Object already has resolved trait for contexts: " + name + ".");
-      else
-        records.push({
-          object:   object,
-          contexts: contexts,
-          getResolvedTrait: getResolvedTrait
-        });
-    },
+    storePolicy: function(newPolicy) {
+      if (_.find(policies, function(policy) { return policy === newPolicy; })) throw new Error("Policy already registered.");
+      this.policies.push(newPolicy);
+    }
 
-    // Called each time a Context *adapts* an object. Stores a clone for the 
-    // basic behavior of the object the first time it gets adapted. 
+    // Called each time a Context *adapts* an object. Stores default 
+    // behavior for an object as trait the first time the object gets adapted. 
     _onAdapt: function(object) {
-      var originalObject = _.find(this.originalObjects, function(original) {
-        return original.object === object;
-      });
-      if (!originalObject) {
-        this.originalObjects.push({
-          object:   object,
-          original: _.clone(object)
-        });
-      }
+      Default.adapt(object, Trait(object));
     },
 
     // Called each time a Context is *activated* or *deactivated*. If the 
@@ -239,7 +218,12 @@
       var composer  = new Composer({ contextManager: this });
       var contexts  = new Dictionary();
       var relations = new Dictionary();
-      var self = this;
+      var policies  = [];
+      var self      = this;
+      // Default policy function. 
+      function defaultPolicy(options) {
+        // TODO: order contexts by activation age.
+      }
       // Initialize contexts.
       if (!_.isArray(options.contexts) || options.contexts.length == 0) throw new Error("Cannot create context manager without contexts.");
       _.each(options.contexts, function(context) {
@@ -266,12 +250,12 @@
       this.composer = composer;
       this.contexts = {
         registered:   contexts,
-        active:       [],
+        active:       [Default],
         toActivate:   [],
         toDeactivate: []
       };
-      this.options = options;
-      this.originalObjects = [];
+      this.options   = options;
+      this.policies  = [defaultPolicy];
       this.relations = relations;
       this.resolvedTraits = new Dictionary();
     }
@@ -405,8 +389,6 @@
           addToResults(context, adaptation);
         });
       });
-      // Store reference to original objects.
-      var originalObjects = this.contextManager.originalObjects;
       // For each `record` in `results`:
       _.each(results, function(record) {
         // First, add *trait* and *context* from `active.contexts`.
@@ -417,11 +399,9 @@
             record.contexts.push(activeContext);
           }
         });
-        // Then, add a clone of the *original object*.
-        var originalObject = _.find(originalObjects, function(original) {
-          return original.object === record.object;
-        });
-        record.originalObject = _.clone(originalObject.original);
+        // TODO: Add default trait and context.
+        record.contexts.push(Default);
+        record.traits.push(Default.getAdaptation(record.object));
       });
       return results;
     },
@@ -481,7 +461,7 @@
           // **Strategy 2**: No callback provided, so apply traits like mixins. 
           else {
             // Get object's *basic behavior*.
-            var superObject = _.clone(adaptation.originalObject);
+            var superObject = {};
             var composedObject = null;
             // Bind `this` in `superObject` to the *original* object reference 
             // of the adapted object.
@@ -526,7 +506,7 @@
         // If not, there is already a `composedObject` present.
         else if (adaptation.composedTrait) {
           var _super = {};
-          var superObject = _.clone(adaptation.originalObject);
+          var superObject = {};
           // Bind `this` in the `superObject` to *original* object reference 
           // for the adapted object.
           bindAllMethods(superObject, adaptation.object);
