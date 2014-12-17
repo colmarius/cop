@@ -251,16 +251,16 @@
     </p>
 
     <p>
-      Cop.js gives better maintainability and evolution to web applications 
+      Cop.js gives better maintainability and evolution to web applications
       by providing <b>contexts</b> and <b>traits</b>. Cop.js is based on the
-      <b>context-oriented programming</b> paradigm where <i>objects</i> are 
-      <i>adapted</i> at <i>runtime</i> with <i>different behavior</i> 
+      <b>context-oriented programming</b> paradigm where <i>objects</i> are
+      <i>adapted</i> at <i>runtime</i> with <i>different behavior</i>
       depending on <i>active contexts</i>.
     </p>
 
     <p>
-      The project is 
-      <a href="http://github.com/colmarius/cop/">hosted on GitHub</a>, with <a href="docs/cop.html">annotated source code</a> made available, as well as an online <a href="test/test.html">test suite</a>, and here is an 
+      The project is
+      <a href="http://github.com/colmarius/cop/">hosted on GitHub</a>, with <a href="docs/cop.html">annotated source code</a> made available, as well as an online <a href="test/test.html">test suite</a>, and here is an
       <a href="examples/contexts/demo.html">example of how to use contexts</a>.
       Cop.js is available for use under the <a href="http://github.com/colmarius/cop/blob/master/LICENSE">Apache 2.0 software license</a>.
     </p>
@@ -293,47 +293,47 @@
     <h2 id="introduction">Introduction</h2>
 
     <p>
-      <b>Context-oriented programming</b>, for short COP, provides 
-      language level abstractions that simplify the development of 
+      <b>Context-oriented programming</b>, for short COP, provides
+      language level abstractions that simplify the development of
       <b>context-aware applications</b>. As of today, there is a lack of COP languages that can reach all major mobile platforms.
     </p>
 
     <p>
       We propose Cop.js, a COP language extension for Javascript that can be
-      used either in web apps or in hybrid apps. <b>Hybrid apps</b>, 
-      like those using <a href="http://phonegap.com/">Phonegap</a>, have the 
-      advantage of running on all major mobile platforms. In addition, 
-      our approach overcomes some limitations of current COP solutions 
-      in <i>solving conflicts between adaptations</i>. 
+      used either in web apps or in hybrid apps. <b>Hybrid apps</b>,
+      like those using <a href="http://phonegap.com/">Phonegap</a>, have the
+      advantage of running on all major mobile platforms. In addition,
+      our approach overcomes some limitations of current COP solutions
+      in <i>solving conflicts between adaptations</i>.
       Mainly, by treating <b>adaptations as traits</b>.
     </p>
 
     <p>
-      If you're new to context-oriented programming, and curious about what 
-      Cop.js can do for you, start by looking at the 
-      <a href="examples/contexts/demo.html">contexts demo</a>. There you find 
-      a <i>running example</i>, where you can <i>edit</i> and <i>run</i> the 
+      If you're new to context-oriented programming, and curious about what
+      Cop.js can do for you, start by looking at the
+      <a href="examples/contexts/demo.html">contexts demo</a>. There you find
+      a <i>running example</i>, where you can <i>edit</i> and <i>run</i> the
       code directly in the browser.
     </p>
 
     <h2 id="Context">Cop.Context</h2>
 
     <p>
-      <b>Contexts</b> can be seen as <i>"reifications of situations that can 
-      occur while an application executes"</i>. For example, an application 
-      running on mobile might be interested if the battery runs low, the 
-      internet connection is interrupted, or the GPS is momentarily disabled. 
-      A part from raw data being sensed, other contextual information might be 
-      of interest, like the user being logged as guest or as admin, if he speaks 
-      english or french, or if his current location is at home, at work, or at 
+      <b>Contexts</b> can be seen as <i>"reifications of situations that can
+      occur while an application executes"</i>. For example, an application
+      running on mobile might be interested if the battery runs low, the
+      internet connection is interrupted, or the GPS is momentarily disabled.
+      A part from raw data being sensed, other contextual information might be
+      of interest, like the user being logged as guest or as admin, if he speaks
+      english or french, or if his current location is at home, at work, or at
       the university.
     </p>
 
     <p>
-      For example, if we are on mobile we might be interested in treating the 
-      <i>battery low</i> situation as a context. By using the 
-      <a href="http://docs.phonegap.com/en/1.8.0/cordova_events_events.md.html#batterylow">Phonegap API</a> we can listen to the 
-      <tt>"batterylow"</tt> event. Here is how we can create a 
+      For example, if we are on mobile we might be interested in treating the
+      <i>battery low</i> situation as a context. By using the
+      <a href="http://docs.phonegap.com/en/1.8.0/cordova_events_events.md.html#batterylow">Phonegap API</a> we can listen to the
+      <tt>"batterylow"</tt> event. Here is how we can create a
       <tt>batteryLow</tt> Context:
     </p>
 
@@ -349,7 +349,7 @@ var batteryLow = new Cop.Context({
     }
 });
 </pre>
-    
+
     <p>
       However, a simple context can be created as follows:
     </p>
@@ -361,7 +361,7 @@ context = new Cop.Context({ name: 'test' });
     <p id="Context-on">
       <b class="header">on</b><code>context.on(event, callback, [object])</code>
       <br />
-      Bind a <tt>callback</tt> on a Context <tt>event</tt>. 
+      Bind a <tt>callback</tt> on a Context <tt>event</tt>.
       The <b>event</b> can be:
       <ul>
         <li><tt>"activate"</tt> fired after activation</li>
@@ -371,8 +371,8 @@ context = new Cop.Context({ name: 'test' });
     </p>
 
     <p>
-      Here is an example of binding a callback that will be called after 
-      the <tt>context</tt> object is activated. 
+      Here is an example of binding a callback that will be called after
+      the <tt>context</tt> object is activated.
     </p>
 
 <pre class="runnable">
@@ -383,7 +383,7 @@ context.on("activate", onActivate);
 </pre>
 
     <p>
-      Here is an example of binding a callback that will be called after the <tt>context</tt> object is deactivated. 
+      Here is an example of binding a callback that will be called after the <tt>context</tt> object is deactivated.
     </p>
 
 <pre class="runnable">
@@ -396,7 +396,7 @@ context.on("deactivate", onDeactivate);
     <p id="Context-off">
       <b class="header">off</b><code>context.off(event, callback, [object])</code>
       <br />
-      Remove a <tt>callback</tt> previously-bound on a Context <tt>event</tt>. 
+      Remove a <tt>callback</tt> previously-bound on a Context <tt>event</tt>.
       For example, here we remove callbacks from the <tt>context</tt> object:
     </p>
 
@@ -407,7 +407,7 @@ context.off("activate", onActivate);
 <pre class="runnable">
 context.off("deactivate", onDeactivate);
 </pre>
-  
+
     <p id="Context-activate">
       <b class="header">activate</b><code>context.activate()</code>
       <br />
@@ -415,7 +415,7 @@ context.off("deactivate", onDeactivate);
     </p>
 
 <pre class="runnable">
-context.activate(); 
+context.activate();
 </pre>
 
     <p id="Context-deactivate">
@@ -425,25 +425,25 @@ context.activate();
     </p>
 
 <pre class="runnable">
-context.deactivate(); 
+context.deactivate();
 </pre>
 
     <p id="Context-adapt">
       <b class="header">adapt</b><code>context.adapt(object, trait)</code>
       <br />
-      A Context can store adaptations by calling <tt>adapt</tt> on the Context, 
-      and passing the <tt>object</tt> to be adapted and the adaptation as 
+      A Context can store adaptations by calling <tt>adapt</tt> on the Context,
+      and passing the <tt>object</tt> to be adapted and the adaptation as
       a <tt>trait</tt>.
       <br /><br />
 
-      <i>Note:</i> <b>Traits</b> are <i>composable units of code reuse</i>. 
-      We use <b>trait as an adaptation</b>, as it groups together all the 
-      methods and properties that exhibit the context-dependent behavior for 
-      the adapted object. In addition, conflicts for adapted objects between 
-      different contexts can be handled in a robust way by traits as name 
+      <i>Note:</i> <b>Traits</b> are <i>composable units of code reuse</i>.
+      We use <b>trait as an adaptation</b>, as it groups together all the
+      methods and properties that exhibit the context-dependent behavior for
+      the adapted object. In addition, conflicts for adapted objects between
+      different contexts can be handled in a robust way by traits as name
       clashes (conflicting properties) must be <b>explicitly</b> resolved by a
-      composing entity. More about traits can be learned at 
-      <a href="http://traitsjs.org">traitsjs.org</a>, which is the Javascript 
+      composing entity. More about traits can be learned at
+      <a href="http://traitsjs.org">traitsjs.org</a>, which is the Javascript
       implementation Cop.js uses for manipulating traits.
     </p>
 
@@ -454,10 +454,10 @@ context.deactivate();
 <pre class="runnable">
 object = {
   greet: function() {
-    alert("Normal behavior."); 
+    alert("Normal behavior.");
   }
 };
-</pre>    
+</pre>
 
     <p>
       To provide an adaptation for the <tt>context</tt> object we have to do the
@@ -466,15 +466,15 @@ object = {
 
 <pre class="runnable">
 context.adapt(object, Trait({
-  greet: function() { 
+  greet: function() {
     // this._super.greet();
-    alert("Context adapted behavior."); 
+    alert("Context adapted behavior.");
   }
 }));
 </pre>
 
     <p>
-      However, in order to see the context-dependent behavior of 
+      However, in order to see the context-dependent behavior of
       <tt>greet()</tt> we must first create a ContextManager instance, pass it the <tt>context</tt> object, and then <tt>start</tt> the instance.
     </p>
 
@@ -501,8 +501,8 @@ contextManager = new Cop.ContextManager({
       <b class="header">start</b><code>start()</code>
       <br />
       The ContextManager, once created needs to be <i>started</i> in order to
-      allow <i>objects acquire traits</i> as needed depending on the 
-      <i>active contexts</i>. As a result, objects can exhibit 
+      allow <i>objects acquire traits</i> as needed depending on the
+      <i>active contexts</i>. As a result, objects can exhibit
       context-dependent behavior.
     </p>
 
@@ -511,15 +511,15 @@ contextManager.start();
 </pre>
 
     <p>
-      For example, in order to see the modified behavior for 
+      For example, in order to see the modified behavior for
       <tt>object.greet()</tt> the following steps must be followed:
       <ul>
         <li>create the <tt>object</tt> object</li>
         <li>create the <tt>context</tt> object</li>
-        <li>declare the <i>adaptation as a trait</i> for the adapted 
+        <li>declare the <i>adaptation as a trait</i> for the adapted
           <tt>object</tt>
         </li>
-        <li>create the <tt>contextManager</tt> instance by passing it the 
+        <li>create the <tt>contextManager</tt> instance by passing it the
           <tt>context</tt> object</li>
         <li><tt>start</tt> the <tt>contextManager</tt> instance</li>
         <li><tt>activate</tt> the <tt>context</tt> object</li>
@@ -534,29 +534,29 @@ object.greet();
     <p id="ContextManager-resolveConflict">
       <b class="header">resolveConflict</b><code>resolveConflict(object, contexts, [callback])</code>
       <br />
-      An adapted object can have different traits for different contexts - 
-      where a trait is just a map of properties (attributes and methods). 
+      An adapted object can have different traits for different contexts -
+      where a trait is just a map of properties (attributes and methods).
       At runtime adapted objects acquire traits depending on the current set
-      of active contexts. 
+      of active contexts.
       <br />
       <br />
-      When traits are <i>composed</i> conflicts can happen. A conflict, 
-      also known as a <i>name clash</i>, occurs when two or more traits provide 
+      When traits are <i>composed</i> conflicts can happen. A conflict,
+      also known as a <i>name clash</i>, occurs when two or more traits provide
       a property with the <i>same name</i> but different implementation -
       where a property is a method or an attribute.
       <br />
       <br />
-      The ContextManager provides the <tt>resolveConflict</tt> method used to 
-      solve a possible conflict that can happen at runtime between two or more 
+      The ContextManager provides the <tt>resolveConflict</tt> method used to
+      solve a possible conflict that can happen at runtime between two or more
       traits for an adapted object.
       <br />
       <br />
       <tt>resolveConflict</tt> method takes the following parameters:
       <ul>
-        <li><tt>object</tt> - is the adapted object that has traits 
+        <li><tt>object</tt> - is the adapted object that has traits
           (adaptations) for more than one context
-        </li> 
-        <li><tt>contexts</tt> - is an array of contexts that have adaptations 
+        </li>
+        <li><tt>contexts</tt> - is an array of contexts that have adaptations
           for the adapted object which are in conflict when all contexts are
           active
         </li>
@@ -573,29 +573,29 @@ object.greet();
       <br />
       <br />
       The <tt>callback</tt>, if present, is invoked by the ContextManager when
-      the conflict occurs by passing it the <i>traits</i> that are in 
-      conflict for the <i>adapted object</i>, and expects to receive a 
+      the conflict occurs by passing it the <i>traits</i> that are in
+      conflict for the <i>adapted object</i>, and expects to receive a
       conflict-free trait in return.
       <br />
       <br />
       <b>Strategy 2:</b> without <tt>callback</tt>:
       <br />
       <br />
-      The ContextManager only uses the <tt>contexts</tt> array to resolve 
-      the conflict. In this case, the traits (adaptations) are applied in a 
-      <b>mixin-like</b> fashion. In particular, between the traits is defined a <i>linearization scheme</i> which is right from left respect to the 
-      contexts array. The right most trait is applied first on the adapted 
-      object. Here, invoking an adapted method will first call the behavior 
-      from the left most trait, and then if <tt>_super</tt> is used inside the 
-      method will <i>proceed</i> (delegate) to the next adapted method in the 
-      chain or, if no more adaptations are left, will proceed to the basic 
+      The ContextManager only uses the <tt>contexts</tt> array to resolve
+      the conflict. In this case, the traits (adaptations) are applied in a
+      <b>mixin-like</b> fashion. In particular, between the traits is defined a <i>linearization scheme</i> which is right from left respect to the
+      contexts array. The right most trait is applied first on the adapted
+      object. Here, invoking an adapted method will first call the behavior
+      from the left most trait, and then if <tt>_super</tt> is used inside the
+      method will <i>proceed</i> (delegate) to the next adapted method in the
+      chain or, if no more adaptations are left, will proceed to the basic
       unadapted method of the object.
       <br />
       <br />
-      However, it should be treated with care as it is an <b>experimental</b> 
-      feature. The <tt>this</tt> reference in methods of an adapted object is 
-      bound at runtime, after each recomposition of adapted objects, to the 
-      original object reference. First tests were encouraging and proved 
+      However, it should be treated with care as it is an <b>experimental</b>
+      feature. The <tt>this</tt> reference in methods of an adapted object is
+      bound at runtime, after each recomposition of adapted objects, to the
+      original object reference. First tests were encouraging and proved
       expected results.
     </p>
 
@@ -608,20 +608,20 @@ object.greet();
 <pre>
 MYAPP = {
   initScreen: function() {
-    alert("Normal initialization."); 
+    alert("Normal initialization.");
   }
 };
 
 batteryLow.adapt(MYAPP, Trait({
-  initScreen: function() { 
-    alert("Low battery initialization."); 
+  initScreen: function() {
+    alert("Low battery initialization.");
     this._super.initScreen();
   }
 }));
 
 offline.adapt(MYAPP, Trait({
-  initScreen: function() { 
-    alert("No network initialization."); 
+  initScreen: function() {
+    alert("No network initialization.");
     this._super.initScreen();
   }
 }));
@@ -632,17 +632,17 @@ offline.adapt(MYAPP, Trait({
       be active requires using the <tt>resolveConflict</tt> functionality.
     </p>
     <p>
-      For example, here we solve the conflict <b>with</b> a <tt>callback</tt> 
+      For example, here we solve the conflict <b>with</b> a <tt>callback</tt>
       function:
     </p>
 
 <pre>
-contextManager.resolveConflict(MYAPP, [batteryLow, offline], 
+contextManager.resolveConflict(MYAPP, [batteryLow, offline],
 function(batteryLowT, offlineT) {
   return Trait.compose(
-    Trait.resolve({initScreen: 'initScreenBatteryLow'}, 
-                  batteryLowT), 
-    Trait.resolve({initScreen: 'initScreenOffline'}, 
+    Trait.resolve({initScreen: 'initScreenBatteryLow'},
+                  batteryLowT),
+    Trait.resolve({initScreen: 'initScreenOffline'},
                   offlineT),
     Trait({
       initScreen: function() {
@@ -665,9 +665,9 @@ contextManager.resolveConflict(MYAPP, [offline, batteryLow]);
 </pre>
 
     <p>
-      When both <tt>offline</tt> and <tt>batteryLow</tt> contexts are active, 
-      calling the <tt>MYAPP.initScreen()</tt> method will first invoke the 
-      <tt>offline</tt> behavior, which proceeds to the <tt>batteryLow</tt> 
+      When both <tt>offline</tt> and <tt>batteryLow</tt> contexts are active,
+      calling the <tt>MYAPP.initScreen()</tt> method will first invoke the
+      <tt>offline</tt> behavior, which proceeds to the <tt>batteryLow</tt>
       behavior, which proceeds to the basic <tt>initScreen</tt> behavior.
     </p>
 
@@ -676,10 +676,10 @@ contextManager.resolveConflict(MYAPP, [offline, batteryLow]);
     <h2 id="examples-contextsdemo">Contexts demo</h2>
 
     <p>
-      <a href="examples/contexts/demo.html">Contexts demo</a> is where you can 
-      begin your first steps towards learning more about Cop.js. 
+      <a href="examples/contexts/demo.html">Contexts demo</a> is where you can
+      begin your first steps towards learning more about Cop.js.
       Thanks to <a href="http://codemirror.net/">CodeMirror</a> you can edit
-      and run a few lines of code that use contexts directly in the browser. 
+      and run a few lines of code that use contexts directly in the browser.
       There are three examples:
       <ul style="margin-top: 5px;">
         <li>
@@ -692,7 +692,7 @@ contextManager.resolveConflict(MYAPP, [offline, batteryLow]);
           <tt>profiler</tt> and <tt>tracer</tt> contexts.
         </li>
         <li>
-          <b>cache_server.js</b>: a <tt>cacheServer</tt> object adaptable to 
+          <b>cache_server.js</b>: a <tt>cacheServer</tt> object adaptable to
           <tt>Backup</tt>, <tt>Privacy</tt> and <tt>Debug</tt> contexts. The
           inspiration for this example comes from <a href="http://home.dei.polimi.it/salvaneschi/publications/attach/lang-comparison.pdf">this article</a>.
         </li>
@@ -708,24 +708,24 @@ contextManager.resolveConflict(MYAPP, [offline, batteryLow]);
 
     <h2 id="examples-ciclami">CiclaMi</h2>
 
-    <p> 
-      <a href="http://github.com/colmarius/ciclami/">CiclaMi</a> is both a 
-      web app and a mobile app with one codebase, and has different 
-      functionality for when running in the browser or on mobile (Android). 
+    <p>
+      <a href="http://github.com/colmarius/ciclami/">CiclaMi</a> is both a
+      web app and a mobile app with one codebase, and has different
+      functionality for when running in the browser or on mobile (Android).
       <br />
       <br />
       It has three tags:
       <ul style="margin-top: 5px;">
         <li>
-          <b>0.0.1</b>: <i>Initial</i> release: has two codebases, one for 
+          <b>0.0.1</b>: <i>Initial</i> release: has two codebases, one for
           web and one for mobile.
         </li>
         <li>
-          <b>0.1.0</b>: <i>Traditional</i> release: refactored as 
+          <b>0.1.0</b>: <i>Traditional</i> release: refactored as
           <i>one codebase</i> for both web and mobile.
         </li>
         <li>
-          <b>0.2.0</b>: <i>Contexts</i> release: the codebase from the 
+          <b>0.2.0</b>: <i>Contexts</i> release: the codebase from the
           traditional implementation now has <i>contexts</i> and <i>traits</i>,
           refactored with Cop.js library.
         </li>
@@ -742,17 +742,17 @@ contextManager.resolveConflict(MYAPP, [offline, batteryLow]);
 
     <p>
     <b class="header">0.1.2</b> &mdash; <small><i>June 25, 2012</i></small><br />
-      Bug fix. When traits are applied like mixins, linearly, now work as expected. 
+      Bug fix. When traits are applied like mixins, linearly, now work as expected.
       <br />
       CiclaMi has three releases: initial, traditional and <i>contexts</i>.
     </p>
 
     <p>
     <b class="header">0.1.1</b> &mdash; <small><i>June 8, 2012</i></small><br />
-      ContextManager's <tt>resolveConflict</tt> method now takes 
-      <b>optional</b> <tt>callback</tt> for resolving a conflict for an adapted 
-      object between traits. When <b>no callback</b> is provided, traits will 
-      be applied like <b>mixins</b> - a linearization scheme will be defined 
+      ContextManager's <tt>resolveConflict</tt> method now takes
+      <b>optional</b> <tt>callback</tt> for resolving a conflict for an adapted
+      object between traits. When <b>no callback</b> is provided, traits will
+      be applied like <b>mixins</b> - a linearization scheme will be defined
       between adaptations with right to left precedence. Improved documentation.
     </p>
 
@@ -760,7 +760,7 @@ contextManager.resolveConflict(MYAPP, [offline, batteryLow]);
     <b class="header">0.1.0</b> &mdash; <small><i>May 21, 2012</i></small><br />
       Initial release of Cop.js library.
     </p>
-    
+
     <table>
       <tr>
         <td>
